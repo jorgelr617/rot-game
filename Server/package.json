@@ -1,0 +1,29 @@
+{
+  "name": "rotgame",
+  "version": "1.0.0",
+  "description": "republic of techies game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KevinGage/RotGame.git"
+  },
+  "keywords": [
+    "game",
+    "rot",
+    "republic",
+    "of",
+    "techies"
+  ],
+  "author": "republic of techies",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KevinGage/RotGame/issues"
+  },
+  "homepage": "https://github.com/KevinGage/RotGame#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
