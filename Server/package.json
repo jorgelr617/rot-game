@@ -25,6 +25,8 @@
   "homepage": "https://github.com/KevinGage/RotGame#readme",
   "dependencies": {
     "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "express-socket.io-session": "^1.3.1",
     "socket.io": "^1.4.5"
   }
 }
