@@ -1,0 +1,14 @@
+{
+  "name": "message-infrastructure",
+  "version": "0.0.1",
+  "description": "The RoT game's message infrastructure.",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.4.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jorgelr617/rot-game.git"
+  },
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- msg_infra_client.html -->
+
+<html>
+
+  <head>
+  
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="Jorge L. Rodriguez">
+    <meta name="keywords" content="client, infrastructure, message, messages, 
+      WebSocket, WebSockets"> 
+    <meta name="description" content="Message infrastructure client">
+    
+    <title>Message infrastructure Client</title>
+    
+    <link rel="stylesheet" type="text/css" href="msg_infra_client.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="jquery.tinyscrollbar.js"></script>
+    <script src="msg_infra_client.js"></script>
+
+  </head>
+
+  <body>
+    
+    <section>
+      <div class="scrollbar">
+        <div class="track">
+          <div class="thumb">
+            <div class="end">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="viewport">
+        <div id="content" class="overview" >
+        </div>
+      </div>
+    </section>
+    
+    <section>
+      <span id="status">Connecting...</span>
+      <input id="input" type="text" disabled="disabled" >
+    </section>
+    
+  </body>
+
+</html>
