@@ -1,0 +1,23 @@
+{
+  "name": "babeltestproject",
+  "version": "1.0.0",
+  "description": "A program to test out babel",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d build & browserify build/index.js -o bundle.js",
+    "watch": "watchify src/index.js -o bundle.js",
+    "build-js": "buildTest.js"
+  },
+  "keywords": [
+    "babel"
+  ],
+  "author": "Gregory Venezia",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "gulp": "^3.9.1"
+  }
+}
