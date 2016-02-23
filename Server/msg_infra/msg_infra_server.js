@@ -8,14 +8,14 @@ var path = require('path');
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'msg_infra_client.html'));
 });
-app.get('/msg_infra_client.css', function(req, res){
-  res.sendFile(path.join(__dirname, 'msg_infra_client.css'));
+app.get('/public/css/msg_infra_client.css', function(req, res){
+  res.sendFile(path.join(__dirname, 'public/css/msg_infra_client.css'));
 });
-app.get('/jquery.tinyscrollbar.js', function(req, res){
-  res.sendFile(path.join(__dirname, 'jquery.tinyscrollbar.js'));
+app.get('/public/scripts/jquery.tinyscrollbar.js', function(req, res){
+  res.sendFile(path.join(__dirname, 'public/scripts/jquery.tinyscrollbar.js'));
 });
-app.get('/msg_infra_client.js', function(req, res){
-  res.sendFile(path.join(__dirname, 'msg_infra_client.js'));
+app.get('/public/scripts/msg_infra_client.js', function(req, res){
+  res.sendFile(path.join(__dirname, 'public/scripts/msg_infra_client.js'));
 });
 
 //User connected.
