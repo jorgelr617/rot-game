@@ -1,159 +1,159 @@
-/* Chat Client */
-$(function () 
+//Simple Message Infrastucture module for Client.
+var error_callbacks = [];
+var warning_callbacks = [];
+var message_callbacks = [];
+
+module.exports = function(temp)
 {
-  //Defines that JavaScript code that should be executed in "strict mode".
-  //It is not a statement, but a literal expression, ignored by earlier versions of JavaScript.
-  //The purpose of "use strict" is to indicate that the code should be executed in "strict mode"
-  //With strict mode, you can not, for example, use undeclared variables.
-  //Source: http://www.w3schools.com/js/js_strict.asp
-  "use strict";
+  var module = {};
   
-  //For better performance - to avoid searching in DOM.
-  var content = $('#content');
-  var input = $('#input');
-  var status = $('#status');
-
-  //Color assigned by the server.
-  var myColor = false;
-  //Name sent to the server.
-  var myName = false;
+  //Establish the socket connection.
+  var socket = require('socket.io-client');
+  var io = socket.connect('http://localhost:3000');
   
-  //Open local host connection.
-  var socket = io.connect('http://localhost:313');
   
-  //When connection is opened, use this handler.
-  socket.on
-  ( 
-    'connect', 
-    function (data) 
-    {
-      //First, we want users to enter their names.
-      input.removeAttr('disabled').val('').focus();
-      status.text('Enter message:');
-    }
-  );
-
-  //When there is connection error, use this handler.
-  socket.on
-  ( 
-    'error',
-    function (error) 
-    {
-      //Just in case there were some problems with the connection...
-      content.html($("<p>", { text: "Sorry, but there's some problem with your "
-                              + "connection or the server is down." } ));
-    }
-  );
-  
-  //When there is connection error, use this handler.
-  socket.on
-  ( 
-    'game_error',
-    function (error) 
-    {
-      //Just in case there were some problems with the connection...
-      content.html($("<p>", { text: "Sorry, but there's some problem with your "
-                              + "connection or the server is down." } ));
-    }
-  );
-  
-  //Most important part - handle incoming messages using this handler.
-  socket.on
-  ( 
-    'game_message',  
-    function (event) 
-    {
-      //Extract the message.
-      var message = event; 
-      
-      //Try to parse JSON message. Because we know that the server always returns
-      //JSON this should work without any problem but we should make sure that
-      //the massage is not chunked or otherwise damaged.
-      try 
-      {
-        var json = JSON.parse(message);
-      } 
-      catch (exception) 
-      {
-        console.log("This doesn't look like a valid JSON: ", message);
-        return;
-      }
-      
-      //NOTE: If you're not sure about the JSON structure
-      //check the server source code above.
-      if (json.msg === 'chat_message') 
-      { //It's a single message.
-        input.removeAttr('disabled'); //Let the user write another message.
-        addMessage(json.data, new Date());
-        slideScrollbar();
-      } else 
-        {
-          console.log("Hmm..., I've never seen JSON like this: ", json);
-        }
-    }
-  );
-
-  //When the connection closes, use this handler.
-  socket.on
-  (
-    'disconnect',  
-    function () 
-    {
-      //Just mote when the connection is closed.
-      content.html($("<p>", { text: "Goodbye! Connection is closed!" } ));
-    }
-  );
-    
-  /**
-   * Send message when user presses the Enter key.
-   */
-  input.on
-  (
-    'keydown',
-    function(event)
-    {
-      if (event.keyCode === 13) 
-      {
-        //Get the message.
-        var temp = $(this).val();
-        
-        var msg = '{ "msg": "chat_message", "data":"' + temp + '"}';
-        
-        //Send the message as an ordinary text.
-        socket.emit('game_message',msg);
-        
-        //Clear the message. 
-        $(this).val('');
-      
-      }
-    }
-  );
-  
-  /**
-   * Add message to the chat window.
-   */
-  function addMessage(data, datetime) 
+  //Send a regular message.
+  module.send_message = function (message)
   {
-    content.append('<p>'
-                  + (datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':'
-                  + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes())
-                  + ': ' + data + '</p>');
-  }
+    //Check for valid arguments.
+    if ((message == null) || (message === 'undefined'))
+      return;
     
+    console.log("CLIENT: -> SENT: Regular message: " + message );
+    io.emit('message', message);
     
-  /**
-   *  Make it a little more user friendly
-   */
-  var scrollbar = $('body > section:first').tinyscrollbar();
+  },
   
-  function slideScrollbar() 
+  //Send a warning error message.
+  module.send_warning = function (message)
   {
-    scrollbar.update();
-    scrollbar.move(Math.max(0, content.find('> p').length - 9) * 18);
-  }
+    //Check for valid arguments.
+    if ((message == null) || (message === 'undefined'))
+      return;
     
-});
+    console.log("CLIENT: -> SENT: Warning message: " + message );
+    io.emit('warning', message);
+    
+  },
+  
+  //Send an error message.
+  module.send_error = function (message)
+  {
+    //Check for valid arguments.
+    if ((message == null) || (message === 'undefined'))
+      return;
+    
+    console.log("CLIENT: -> SENT: Error message: " + message );
+    io.emit('error', message);
+    
+  },
+  
+  //Register a listener for regular messages.
+  module.receive_message = function (callback)
+  {
+    console.log("CLIENT: Register regular message receiver.");
+    
+    //Check for valid arguments.
+    if ((callback == null) || (callback === 'undefined'))
+      return;
+    
+    //Add the regular message callback.
+    message_callbacks.push(callback);
+  },
+  
+  //Register a listener for warning messages.
+  module.receive_warning = function (callback)
+  {
+    console.log("CLIENT: Register warning receiver.");
+    
+    //Check for valid arguments.
+    if ((callback == null) || (callback === 'undefined'))
+      return;
+    
+    //Add the warning callback.
+    warning_callbacks.push(callback);
+  },
+  
+  //Register a listener for error messages.
+  module.receive_error = function (callback)
+  {
+    console.log("CLIENT: Register error receiver.");
+    
+    //Check for valid arguments.
+    if ((callback == null) || (callback === 'undefined'))
+      return;
+    
+    //Add the Error callback.
+    error_callbacks.push(callback);
+  }
+  
+  //Process regular messages.
+  io.on('message', function(message)
+  {
+    console.log('CLIENT: -> RECEIVED: Regular message = ' + message);
 
+    //Loop through all the message callbacks.
+    for (var lcv=0; lcv < message_callbacks.length; lcv++)
+    {
+      //Get the callback.
+      var callback = message_callbacks[lcv];
+      
+      //Invoke the message callback.
+      callback(message);
+    }
+    
+  });
+  
+  //Process warning message.
+  io.on('warning', function(message)
+  {
+    console.log('CLIENT: -> RECEIVED: Warning message = ' + message);
 
+    //Loop through all the warning callbacks.
+    for (var lcv=0; lcv < warning_callbacks.length; lcv++)
+    {
+      //Get the callback.
+      var callback = warning_callbacks[lcv];
+      
+      //Invoke the warning callback.
+      callback(message);
+    }
+    
+  });
+  
+  //Process error message.
+  io.on('error', function(message)
+  {
+    console.log('CLIENT: -> RECEIVED: Error message = ' + message);
 
+    //Loop through all the error callbacks.
+    for (var lcv=0; lcv < error_callbacks.length; lcv++)
+    {
+      //Get the callback.
+      var callback = error_callbacks[lcv];
+      
+      //Invoke the error callback.
+      callback(message);
+    }
+    
+  });
+  
+  //Process connection message.
+  io.on('connection', function(message)
+  {
+    console.log('CLIENT: -> RECEIVED: Connection = ' + message);
 
+    //Loop through all the message callbacks.
+    for (var lcv=0; lcv < message_callbacks.length; lcv++)
+    {
+      //Get the callback.
+      var callback = message_callbacks[lcv];
+      
+      //Invoke the message callback.
+      callback(message);
+    }
+    
+  });
+  
+  return module;
+};
