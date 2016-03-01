@@ -1,9 +1,9 @@
-//Simple Message Infrastucture module for Client.
+//Client: Simple Message Infrastucture module for Client.
 var error_callbacks = [];
 var warning_callbacks = [];
 var message_callbacks = [];
 
-module.exports = function(temp)
+module.exports = function(temp) //Argument ignored for now.
 {
   var module = {};
   

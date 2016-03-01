@@ -7278,7 +7278,7 @@ $(function ()
     {
       if (message == 'connection')
       {
-        console.log("callback called! " + message);
+        console.log("CLIENT: Connection message = " + message);
       
         //First, we want users to enter their names.
         input.removeAttr('disabled').val('').focus();
@@ -7290,7 +7290,7 @@ $(function ()
         content.html($("<p>", { text: "Goodbye! Connection is closed!" } ));
       }
       else
-        process(message);
+        processMessage(message);
     }
   );
   
@@ -7317,8 +7317,7 @@ $(function ()
   );
   
   //Most important part - handle incoming messages using this handler.
-  
-  function process(event) 
+  function processMessage(event) 
   {
     //Extract the message.
     var message = event; 
@@ -7340,8 +7339,13 @@ $(function ()
     //check the server source code above.
     if (json.msg === 'chat_message') 
     { //It's a single message.
-      input.removeAttr('disabled'); //Let the user write another message.
+      
+      //Let the user write another message.
+      input.removeAttr('disabled');
+      
+      //Add a message.
       addMessage(json.data, new Date());
+      
       slideScrollbar();
     } else 
       {
@@ -7405,12 +7409,12 @@ $(function ()
 
 
 },{"./msg_infra_client.js":53}],53:[function(require,module,exports){
-//Simple Message Infrastucture module for Client.
+//Client: Simple Message Infrastucture module for Client.
 var error_callbacks = [];
 var warning_callbacks = [];
 var message_callbacks = [];
 
-module.exports = function(temp)
+module.exports = function(temp) //Argument ignored for now.
 {
   var module = {};
   

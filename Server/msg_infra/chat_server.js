@@ -1,4 +1,4 @@
-//Simple Chat Server.
+//Simple Chat Server: chat_server.js.
 var app = require('express')();
 var http = require('http').Server(app);
 

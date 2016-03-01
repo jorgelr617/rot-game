@@ -7,8 +7,13 @@ module.exports = function(http_var)
 {
   var module = {};
   
+  //Check for valid arguments.
+  if ((http_var == null) || (http_var === 'undefined'))
+    return;
+  
   //Open local host connection.
   var io = require('socket.io')(http_var);
+  
   
   //Send a regular message.
   module.send_message = function (message)
@@ -92,7 +97,7 @@ module.exports = function(http_var)
     socket.on('message', function(message)
     {
       console.log('SERVER: <- RECEIVED: Regular message = ' + message);
-
+      
       //Loop through all the message callbacks.
       for (var lcv=0; lcv < message_callbacks.length; lcv++)
       {
@@ -109,7 +114,7 @@ module.exports = function(http_var)
     socket.on('warning', function(message)
     {
       console.log('SERVER: <- RECEIVED: Warning message = ' + message);
-
+      
       //Loop through all the warning callbacks.
       for (var lcv=0; lcv < warning_callbacks.length; lcv++)
       {
@@ -121,12 +126,12 @@ module.exports = function(http_var)
       }
       
     });
-  
+    
     //Process error message.
     socket.on('error', function(message)
     {
       console.log('SERVER: <- RECEIVED: Error message = ' + message);
-
+      
       //Loop through all the error callbacks.
       for (var lcv=0; lcv < error_callbacks.length; lcv++)
       {
