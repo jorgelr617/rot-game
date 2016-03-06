@@ -1,105 +1,72 @@
 //Client: Simple Message Infrastucture module for Client.
-var error_callbacks = [];
-var warning_callbacks = [];
 var message_callbacks = [];
 
-module.exports = function(temp) //Argument ignored for now.
+module.exports = function(connection_string) //Argument ignored for now.
 {
   var module = {};
   
-  //Establish the socket connection.
-  var socket = require('socket.io-client');
-  var io = socket.connect('http://localhost:3000');
-  
-  
-  //Send a regular message.
-  module.send_message = function (message)
+  //Check for valid "connection_string" argument.
+  if ((connection_string == null) || (connection_string === 'undefined'))
   {
-    //Check for valid arguments.
-    if ((message == null) || (message === 'undefined'))
-      return;
-    
-    console.log("CLIENT: -> SENT: Regular message: " + message );
-    io.emit('message', message);
-    
-  },
-  
-  //Send a warning error message.
-  module.send_warning = function (message)
-  {
-    //Check for valid arguments.
-    if ((message == null) || (message === 'undefined'))
-      return;
-    
-    console.log("CLIENT: -> SENT: Warning message: " + message );
-    io.emit('warning', message);
-    
-  },
-  
-  //Send an error message.
-  module.send_error = function (message)
-  {
-    //Check for valid arguments.
-    if ((message == null) || (message === 'undefined'))
-      return;
-    
-    console.log("CLIENT: -> SENT: Error message: " + message );
-    io.emit('error', message);
-    
-  },
-  
-  //Register a listener for regular messages.
-  module.receive_message = function (callback)
-  {
-    console.log("CLIENT: Register regular message receiver.");
-    
-    //Check for valid arguments.
-    if ((callback == null) || (callback === 'undefined'))
-      return;
-    
-    //Add the regular message callback.
-    message_callbacks.push(callback);
-  },
-  
-  //Register a listener for warning messages.
-  module.receive_warning = function (callback)
-  {
-    console.log("CLIENT: Register warning receiver.");
-    
-    //Check for valid arguments.
-    if ((callback == null) || (callback === 'undefined'))
-      return;
-    
-    //Add the warning callback.
-    warning_callbacks.push(callback);
-  },
-  
-  //Register a listener for error messages.
-  module.receive_error = function (callback)
-  {
-    console.log("CLIENT: Register error receiver.");
-    
-    //Check for valid arguments.
-    if ((callback == null) || (callback === 'undefined'))
-      return;
-    
-    //Add the Error callback.
-    error_callbacks.push(callback);
+    connection_string = 'http://localhost:3000';
   }
+  
+  //Establish the "socket.io" connection.
+  var socket = require('socket.io-client');
+  var io = socket.connect(connection_string);
+  
+  
+  //Send a message.
+  module.send_message = function (message_type, message)
+  {
+    //Check for valid "message type" argument.
+    if ((message_type == null) || (message_type === 'undefined'))
+      return;
+    
+    //Check for valid "message" argument.
+    if ((message == null) || (message === 'undefined'))
+      return;
+    
+    console.log("CLIENT: -> SENT: " + message_type + ": " + message);
+    io.emit(message_type, message);
+    
+  },
+  
+  //Register a listener for message type.
+  module.receive_message = function (message_type, callback)
+  {
+    console.log("CLIENT: Register " + message_type + " receiver.");
+    
+    //Check for valid "message type" argument.
+    if ((message_type == null) || (message_type == 'undefined'))
+      return;
+    
+    //Check for valid "calback" argument.
+    if ((callback == null) || (callback === 'undefined'))
+      return;
+    
+    //Add the message type callback.
+    message_callbacks.push({key: message_type, value: callback});
+  },
+  
   
   //Process regular messages.
   io.on('message', function(message)
   {
-    console.log('CLIENT: -> RECEIVED: Regular message = ' + message);
+    console.log('CLIENT: -> RECEIVED: message = ' + message);
 
     //Loop through all the message callbacks.
     for (var lcv=0; lcv < message_callbacks.length; lcv++)
     {
-      //Get the callback.
-      var callback = message_callbacks[lcv];
+      //Is it the regular message type?
+      if (message_callbacks[lcv].key == "message")
+      {
+        //Get the callback.
+        var callback = message_callbacks[lcv].value;
       
-      //Invoke the message callback.
-      callback(message);
+        //Invoke the regular message callback.
+        callback(message);
+      }
     }
     
   });
@@ -109,14 +76,18 @@ module.exports = function(temp) //Argument ignored for now.
   {
     console.log('CLIENT: -> RECEIVED: Warning message = ' + message);
 
-    //Loop through all the warning callbacks.
-    for (var lcv=0; lcv < warning_callbacks.length; lcv++)
+    //Loop through all the message callbacks.
+    for (var lcv=0; lcv < message_callbacks.length; lcv++)
     {
-      //Get the callback.
-      var callback = warning_callbacks[lcv];
+      //Is it the warning message type?
+      if (message_callbacks[lcv].key == "warning")
+      {
+        //Get the callback.
+        var callback = message_callbacks[lcv].value;
       
-      //Invoke the warning callback.
-      callback(message);
+        //Invoke the warning message callback.
+        callback(message);
+      }
     }
     
   });
@@ -126,16 +97,19 @@ module.exports = function(temp) //Argument ignored for now.
   {
     console.log('CLIENT: -> RECEIVED: Error message = ' + message);
 
-    //Loop through all the error callbacks.
-    for (var lcv=0; lcv < error_callbacks.length; lcv++)
+    //Loop through all the message callbacks.
+    for (var lcv=0; lcv < message_callbacks.length; lcv++)
     {
-      //Get the callback.
-      var callback = error_callbacks[lcv];
+      //Is it the error message type?
+      if (message_callbacks[lcv].key == "error")
+      {
+        //Get the callback.
+        var callback = message_callbacks[lcv].value;
       
-      //Invoke the error callback.
-      callback(message);
+        //Invoke the error message callback.
+        callback(message);
+      }
     }
-    
   });
   
   //Process connection message.
@@ -146,14 +120,39 @@ module.exports = function(temp) //Argument ignored for now.
     //Loop through all the message callbacks.
     for (var lcv=0; lcv < message_callbacks.length; lcv++)
     {
-      //Get the callback.
-      var callback = message_callbacks[lcv];
+      //Is it the connection message type?
+      if (message_callbacks[lcv].key == "connection")
+      {
+        //Get the callback.
+        var callback = message_callbacks[lcv].value;
       
-      //Invoke the message callback.
-      callback(message);
+        //Invoke the connection message callback.
+        callback(message);
+      }
     }
     
   });
+  
+  //Process disconnect message.
+  io.on('disconnect', function(message)
+  {
+    console.log('CLIENT: <- RECEIVED: Disconnect message = ' + message);
+
+    //Loop through all the message callbacks.
+    for (var lcv=0; lcv < message_callbacks.length; lcv++)
+    {
+      //Is it the disconnect message type?
+      if (message_callbacks[lcv].key == "disconnect")
+      {
+        //Get the callback.
+        var callback = message_callbacks[lcv].value;
+      
+        //Invoke the disconnect message callback.
+        callback(message);
+      }
+    }
+    
+  })
   
   return module;
 };

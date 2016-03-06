@@ -30,10 +30,11 @@ http.listen(3000, function(){
   //Register a regular message listener.
   my_module.receive_message
   (
+    "message",
     function(message)
     {
       //Echo message back to the Chat Clients.
-      my_module.send_message(message);
+      my_module.send_message("message", message);
     }
   )
 

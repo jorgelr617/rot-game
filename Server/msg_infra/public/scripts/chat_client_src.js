@@ -14,7 +14,7 @@ $(function ()
   var status = $('#status');
   
   //Open local host connection.
-  var msg_infra = require('./msg_infra_client.js')();
+  var msg_infra = require('./msg_infra_client.js')('http://localhost:3000');
   
   //Enable user input.
   input.removeAttr('disabled').val('').focus();
@@ -23,29 +23,46 @@ $(function ()
   //When connection is opened, use this callback.
   msg_infra.receive_message
   (
+    "message",
     function(message)
     {
-      if (message == 'connection')
-      {
-        console.log("CLIENT: Connection message = " + message);
-      
-        //First, we want users to enter their names.
-        input.removeAttr('disabled').val('').focus();
-        status.text('Enter message:');
-        
-      } else if (message == 'disconnect')
-      {
-        //Just mote when the connection is closed.
-        content.html($("<p>", { text: "Goodbye! Connection is closed!" } ));
-      }
-      else
-        processMessage(message);
+      //Process the message.
+      processMessage(message);
+    }
+  );
+  
+  //When connection is opened, use this callback.
+  msg_infra.receive_message
+  (
+    "connection",
+    function(message)
+    {
+      console.log("CLIENT: Connection message = " + message);
+    
+      //First, we want users to enter their names.
+      input.removeAttr('disabled').val('').focus();
+      status.text('Enter message:');
+    }
+  );
+  
+  //When connection is closed, use this callback.
+  msg_infra.receive_message
+  (
+    "disconnect",
+    function(message)
+    {
+      console.log("CLIENT: Disconnect message = " + message);
+    
+      //First, we want users to enter their names.
+      input.removeAttr('disabled').val('').focus();
+      status.text('Enter message:');
     }
   );
   
   //When there is a warning, use this callback.
-  msg_infra.receive_warning
+  msg_infra.receive_message
   ( 
+    "warning", 
     function (warning) 
     {
       //Just in case there were some problems with the connection...
@@ -55,9 +72,10 @@ $(function ()
   );
   
   //When there is an error, use this callback.
-  msg_infra.receive_error
+  msg_infra.receive_message
   ( 
-    function (error) 
+    "error",
+    function (error)
     {
       //Just in case there were some problems with the connection...
       content.html($("<p>", { text: "Sorry, but there's some problem with your "
@@ -119,7 +137,7 @@ $(function ()
         var msg = '{ "msg": "chat_message", "data":"' + temp + '"}';
         
         //Send the message as an ordinary text.
-        msg_infra.send_message(msg);
+        msg_infra.send_message("message", msg);
         
         //Clear the message. 
         $(this).val('');
