@@ -1,2 +1,4 @@
 Server/node_modules/
 Server/msg_infra/node_modules/
+Client/main/node_modules/
+*.npmignore
