@@ -16,7 +16,7 @@ app.use(session);
 
 io.use(sharedsession(session, {
     autoSave:true
-})); 
+}));
 
 var guestCounter = 0;
 var sess;
@@ -27,7 +27,7 @@ var sess;
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
-    if (req.session.username){
+    if (req.session.username) {
 
     } else {
         req.session.username = 'Guest'+guestCounter.toString();
@@ -37,7 +37,20 @@ app.get('/', function (req, res) {
   res.send('Hello ' + req.session.username + '!<img src=/images/jetfighter.png alt="spaceship"><br /><a href="/chat.html">Sample Chat Page!</a>');
 });
 
-server.listen(80, function () { 
+app.get('/game.js', function(req, res) {
+  res.sendFile("/private/game.js");
+});
+app.get('/map.js', function(req, res) {
+  res.sendFile("/private/map.js");
+});
+app.get('/hex.js', function(req, res) {
+  res.sendFile("/private/hex.js");
+});
+app.get('/node.js', function(req, res) {
+  res.sendFile("/private/node.js");
+});
+
+server.listen(80, function () {
   console.log('Example app listening on port 80!');
 });
 

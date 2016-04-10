@@ -70,6 +70,10 @@ export class Map {
 
   }
 
+  fromJSON(jsonObj) {
+
+  }
+
 
 
 
