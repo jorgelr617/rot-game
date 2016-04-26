@@ -8,7 +8,8 @@ import * as d3 from "d3";
 
 $(document).ready(function() {
   
-  d3.select('.container').text('selected');
+  d3.select('#board').text('selected');
+	//
   // board.width = window.innerWidth;
   // board.height = window.innerHeight;
 

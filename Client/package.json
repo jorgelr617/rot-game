@@ -4,9 +4,9 @@
   "description": "A hex grid game.",
   "main": "index.js",
   "scripts": {
-    "build": "browserify build/index.js -o bundle.js",
-    "transpile": "babel src -d build",
-    "watch": "watch -p 'src/*.js' -c 'npm run transpile & build'"
+    "build": "babel src -d build && browserify build/index.js -o bundle.js",
+    "transpile": "",
+    "watch": "watch -p 'src/*.js' -c 'npm run build'"
   },
   "keywords": [
     "babel",
