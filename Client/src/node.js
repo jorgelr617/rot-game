@@ -37,7 +37,7 @@ export class Node {
 
 	draw() {
 
-		d3.select('svg.board')
+		d3.select('#board')
 			.append("circle")
 			.attr("cx", this.center.x)
 			.attr("cy", this.center.y)

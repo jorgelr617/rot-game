@@ -26,14 +26,16 @@ export class Map {
 			let currentHex = new Hex(point, this.hexSize, this.nodeRadius);
 			
 			currentHex.createChildNodes();
+			currentHex.draw();
 			
 			column.push(currentHex);
 			
-			point.moveY(this.hexSize);
+			point.moveY(Math.sqrt(3)*this.hexSize);
 		}
 
 		column.forEach(function(hex) {
-			hex.draw();
+			hex.leftChildNode.draw();
+			hex.rightChildNode.draw();
 		})
 
 	}

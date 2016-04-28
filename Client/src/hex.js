@@ -62,34 +62,44 @@ export class Hex {
   //  Draws the hex to the current context
   
   draw() {
-    
-		/*
+
 		var cornerPoints = this.corners();
 
-    // draw the hex
-    this.ctx.beginPath();
-    this.ctx.moveTo(cornerPoints[0].x, cornerPoints[0].y);
-    for(var i = 1; i < 6; i++) {
-      this.ctx.lineTo(cornerPoints[i].x, cornerPoints[i].y);
-    }
-    this.ctx.closePath();
+		var lineFunction = d3.svg.line()
+												.x(function(d) { return d.x; })
+												.y(function(d) { return d.y; })
+												.interpolate("linear");
 
-    this.ctx.strokeStyle = this.stroke;
-    this.ctx.fillStyle = this.fill();
-    this.ctx.stroke();
-    this.ctx.fill();
+			d3.select('#board')
+				.append("path")
+				.attr("d", lineFunction(cornerPoints))
+				// .style("stroke", "red");
+		
+		};
 
-    // add the label
-    this.ctx.textAlign = "center";
-    this.ctx.font = "15px Arial";
-    this.ctx.fillStyle = this.labelColor;
-    this.ctx.fillText(this.label, this.center.x, this.center.y);
-	 */
+
+		// var line = d3.svg.line()
+    // this.ctx.beginPath();
+    // this.ctx.moveTo(cornerPoints[0].x, cornerPoints[0].y);
+    // for(var i = 1; i < 6; i++) {
+    //   this.ctx.lineTo(cornerPoints[i].x, cornerPoints[i].y);
+    // }
+    // this.ctx.closePath();
+		//
+    // this.ctx.strokeStyle = this.stroke;
+    // this.ctx.fillStyle = this.fill();
+    // this.ctx.stroke();
+    // this.ctx.fill();
+		//
+    // // add the label
+    // this.ctx.textAlign = "center";
+    // this.ctx.font = "15px Arial";
+    // this.ctx.fillStyle = this.labelColor;
+    // this.ctx.fillText(this.label, this.center.x, this.center.y);
+
 	
-		this.leftChildNode.draw();
-		this.rightChildNode.draw();
-  }
-	 
+
+
     /*
      Determines the color of the given hex.
      

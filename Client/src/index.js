@@ -10,18 +10,18 @@ $(document).ready(function() {
   
 	var boardWidth = window.innerWidth;
 	var boardHeight = window.innerHeight;
-	
-  d3.selectAll('.board')
+	//
+  d3.select('#board')
 		.attr("x", 0)
 		.attr("y", 0)
 		.attr("width", boardWidth)
 		.attr("height", boardHeight)
-		.attr("fill", "tan");
+		.style("background", "tan");
 	
   var startPoint = new Point(boardWidth/8, boardHeight/8);
 	
 	var testMap = new Map(
-		40, // hex size,
+		50, // hex size,
     10, // node radius
 		5, // the minimum number of hexes in a column
 		7 // the maximum number of hexes in a column
