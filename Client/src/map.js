@@ -4,44 +4,38 @@ import {GameProperties} from "./gameProperties.js"
 
 export class Map {
 
-  constructor(ctx, hexSize, nodeRadius, minHexes, maxHexes, mapStartPoint) {
-
-		this.ctx = ctx;
-
-		this.hexColumn = [];
+  constructor(hexSize, nodeRadius, minHexes, maxHexes) {
+		
+		this.hexColumns = [];
 		this.nodes = {};
 
 		this.hexSize = hexSize;
 		this.nodeRadius = nodeRadius;
 		this.minHexes = minHexes;
 		this.maxHexes = maxHexes;
-
-		this.mapStartPoint = mapStartPoint;
-
+		
 	}
 
 	createColumn(startPoint) {
 
-		var point = startPoint;
+		let point = startPoint;
+		let column = [];
 
 		for (let i = 0; i < this.minHexes; i++) {
 
-			var currentHex = new Hex(this.ctx, point, this.hexSize, this.nodeRadius);
+			let currentHex = new Hex(point, this.hexSize, this.nodeRadius);
 			
 			currentHex.createChildNodes();
 			
-			this.hexColumn.push(currentHex);
+			column.push(currentHex);
 			
-			point.shiftDown(this.hexSize);
+			point.moveY(this.hexSize);
 		}
 
-		this.hexColumn.forEach(function(hex) {
+		column.forEach(function(hex) {
 			hex.draw();
 		})
 
 	}
-
-
-
-
+	
 }

@@ -1,13 +1,12 @@
 import {Point} from "./point.js"
 import {GameProperties} from "./gameProperties.js"
+import * as d3 from "d3";
 
 export class Node {
 
   // place a node at the corner of each hex
-  constructor(ctx, x, y, radius) {
+  constructor(x, y, radius) {
     this.owner = 0;
-
-    this.ctx = ctx;
 		
     this.label = "";
 
@@ -36,7 +35,18 @@ export class Node {
     return this.center.distance(new Point(screenX, screenY)) <= this.radius;
   }
 
+	draw() {
 
+		d3.select('svg.board')
+			.append("circle")
+			.attr("cx", this.center.x)
+			.attr("cy", this.center.y)
+			.attr("r", this.radius)
+			.attr("fill", "red");
+	}
+
+
+/*
   draw() {
     this.ctx.beginPath();
     this.ctx.arc(this.center.x, this.center.y, this.radius, 0, 2.0 * Math.PI);
@@ -52,7 +62,7 @@ export class Node {
     this.ctx.fillStyle = this.labelColor;
     this.ctx.fillText(this.label, this.center.x, this.center.y)
   }
-
+*/
 
 
 

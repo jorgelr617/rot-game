@@ -4,16 +4,16 @@ export class Point {
     this.y = y;
   }
 
-	shiftDown(dist) {
-		this.y += dist;
-	}
-
-	shiftRight(dist) {
+	moveX(dist) {
 		this.x += dist;
 	}
-
-  distance(point) {
-    return Math.sqrt(Math.pow(this.x - point.x, 2) + Math.pow(this.y - point.y, 2));
+	
+	moveY(dist) {
+		this.y += dist;
+	}
+	
+  distance(refPoint) {
+    return Math.sqrt(Math.pow(this.x - refPoint.x, 2) + Math.pow(this.y - refPoint.y, 2));
   }
-
+	
 }

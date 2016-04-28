@@ -8,34 +8,26 @@ import * as d3 from "d3";
 
 $(document).ready(function() {
   
-  d3.select('#board').text('selected');
-	//
-  // board.width = window.innerWidth;
-  // board.height = window.innerHeight;
-
-	// d3.select("div")
-	// 	.append('svg')
-	// 	.attr('width', 600)
-	// 	.attr('height', 600);
-	//comment
+	var boardWidth = window.innerWidth;
+	var boardHeight = window.innerHeight;
 	
-  // document.body.appendChild(board);
-  // var context = board.getContext("2d");
-	// context.fillStyle = "white";
-  // context.fillRect(0, 0, board.width, board.height);
-  //
-  // var startPoint = new Point(board.width/4, board.height/8);
-	//
-	// var testMap = new Map(
-  //   context,
-		// board.width/22, // hex size,
-  //   8, // node radius
-		// 5, // the minimum number of hexes in a column
-		// 7, // the maximum number of hexes in a column
-  //   startPoint
-  // );
-  //
-  // testMap.createColumn(startPoint);
+  d3.selectAll('.board')
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("width", boardWidth)
+		.attr("height", boardHeight)
+		.attr("fill", "tan");
+	
+  var startPoint = new Point(boardWidth/8, boardHeight/8);
+	
+	var testMap = new Map(
+		40, // hex size,
+    10, // node radius
+		5, // the minimum number of hexes in a column
+		7 // the maximum number of hexes in a column
+  );
+  
+  testMap.createColumn(startPoint);
     
 });
 

@@ -2,15 +2,15 @@
 import {GameProperties} from "./gameProperties.js"
 import {Point} from "./point.js"
 import {Node} from "./node.js"
+import * as d3 from "d3";
 
 export class Hex {
 
-	constructor(ctx, center, size, nodeRadius) {
+	constructor(center, size, nodeRadius) {
 
 		this.owner = 0;
 		this.visited = false;
-
-		this.ctx = ctx;
+		
 		this.label = "";
 
 		this.labelColor = "black";
@@ -29,10 +29,10 @@ export class Hex {
 	createChildNodes() {
 
 		var center0 = this.corner(1);
-		this.rightChildNode = new Node(this.ctx, center0.x, center0.y, this.nodeRadius);
+		this.rightChildNode = new Node(center0.x, center0.y, this.nodeRadius);
 
 		var center1 = this.corner(2);
-		this.leftChildNode = new Node(this.ctx, center1.x, center1.y, this.nodeRadius);
+		this.leftChildNode = new Node(center1.x, center1.y, this.nodeRadius);
 
 	};
 
@@ -58,11 +58,13 @@ export class Hex {
   }
 
 
-  /*
-    Draws the hex to the current context
-  */
+  
+  //  Draws the hex to the current context
+  
   draw() {
-    var cornerPoints = this.corners();
+    
+		/*
+		var cornerPoints = this.corners();
 
     // draw the hex
     this.ctx.beginPath();
@@ -82,18 +84,19 @@ export class Hex {
     this.ctx.font = "15px Arial";
     this.ctx.fillStyle = this.labelColor;
     this.ctx.fillText(this.label, this.center.x, this.center.y);
-		
+	 */
+	
 		this.leftChildNode.draw();
 		this.rightChildNode.draw();
   }
-
+	 
     /*
      Determines the color of the given hex.
-     */
+     
     fill() {
         return GameProperties.teamColors[this.owner];
     }
-
+		 */
 
 
 }
