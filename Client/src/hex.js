@@ -18,28 +18,31 @@ export class Hex {
 
 		this.degOffset = 0; // 0 is flat top, 30 is pointy top
 		this.center = center;
+		this.cornerPoints = [];
 		this.size = size;
 		
 		this.nodeRadius = nodeRadius;
 		this.leftChildNode = undefined;
 		this.rightChildNode = undefined;
 
+		this.setCorners();
+
 	}
 
 	createChildNodes() {
 
-		var center0 = this.corner(1);
+		var center0 = this.getCorner(1);
 		this.rightChildNode = new Node(center0.x, center0.y, this.nodeRadius);
 
-		var center1 = this.corner(2);
+		var center1 = this.getCorner(2);
 		this.leftChildNode = new Node(center1.x, center1.y, this.nodeRadius);
 
 	};
 
   /*
-    Gets the position of the ith corner of the hexagon.
+    calculate the position of the ith corner of the hexagon.
   */
-  corner(i) {
+  calcCorner(i) {
     var degrees = 60 * i + this.degOffset;
     var radians = Math.PI / 180 * degrees;
     return new Point(this.center.x + this.size * Math.cos(radians),
@@ -47,23 +50,24 @@ export class Hex {
   }
 
   /*
-    Gets all the corners of the hexagon.
+    sets all the corners of the hexagon.
   */
-  corners() {
-    var cornerPoints = [];
+  setCorners() {
     for(var i = 0; i < 6; i++) {
-      cornerPoints.push(this.corner(i));
+      this.cornerPoints.push(this.calcCorner(i));
     }
-    return cornerPoints;
   }
+
+	//get the point for the ith corder
+	getCorner(i) {
+		return this.cornerPoints[i];
+	}
 
 
   
   //  Draws the hex to the current context
   
   draw() {
-
-		var cornerPoints = this.corners();
 
 		var lineFunction = d3.svg.line()
 												.x(function(d) { return d.x; })
@@ -72,8 +76,8 @@ export class Hex {
 
 			d3.select('#board')
 				.append("path")
-				.attr("d", lineFunction(cornerPoints))
-				// .style("stroke", "red");
+				.attr("d", lineFunction(this.cornerPoints))
+				.style("stroke", "black");
 		
 		};
 
