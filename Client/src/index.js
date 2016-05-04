@@ -4,8 +4,9 @@ import * as d3 from "d3";
 
 $(document).ready(function() {
   
-	var boardWidth = window.innerWidth;
-	var boardHeight = window.innerHeight;
+	let boardWidth = window.innerWidth;
+	let boardHeight = window.innerHeight;
+	let startPoint = new Point(boardWidth/4, boardHeight/3);
 	
   d3.select('#board')
 		.attr("x", 0)
@@ -14,18 +15,15 @@ $(document).ready(function() {
 		.attr("height", boardHeight)
 		.style("background", "tan");
 	
-  var center = new Point(boardWidth/2, boardHeight/2);
-	
-	var testMap = new Map(
-		50, // hex size,
-    10, // node radius
-		4, // the minimum number of hexes in a column
-		7 // the maximum number of hexes in a column
-  );
+	var testMap = new Map();
 
-	testMap.createAllColumns(center);
-	testMap.drawHexes();
-	testMap.drawNodes();
+	testMap.createAllColumns();
+	
+	testMap.positionHexes(startPoint);
+
+	testMap.drawGameHexes();
+	
+	testMap.drawGameNodes();
     
 });
 

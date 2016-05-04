@@ -38,8 +38,8 @@ export class MapCreationAnimator {
         self.stage = 1;
       }
     } else if(self.stage == 1) {
-      if(self.iteration < self.map.nodes.length) {
-          self.map.nodes[self.iteration].draw();
+      if(self.iteration < self.map.gameNodes.length) {
+          self.map.gameNodes[self.iteration].draw();
           self.iteration += 1;
       } else {
         self.iteration = 0;
