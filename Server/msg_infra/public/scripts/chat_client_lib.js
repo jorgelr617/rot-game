@@ -227,7 +227,7 @@ var BlobBuilder = global.BlobBuilder
 var blobSupported = (function() {
   try {
     var a = new Blob(['hi']);
-    return a.size === 2;
+    return a.hexRadius === 2;
   } catch(e) {
     return false;
   }
@@ -241,7 +241,7 @@ var blobSupported = (function() {
 var blobSupportsArrayBufferView = blobSupported && (function() {
   try {
     var b = new Blob([new Uint8Array([1,2])]);
-    return b.size === 2;
+    return b.hexRadius === 2;
   } catch(e) {
     return false;
   }
@@ -3715,7 +3715,7 @@ exports.encodePayloadAsBlob = function(packets, callback) {
 
       var len = (encoded instanceof ArrayBuffer)
         ? encoded.byteLength
-        : encoded.size;
+        : encoded.hexRadius;
 
       var lenStr = len.toString();
       var lengthAry = new Uint8Array(lenStr.length + 1);

@@ -9,7 +9,7 @@ var game = require('game.js');
 */
 function Map(radius, center) {
   this.hexes = {};
-  this.nodes = [];
+  this.gameNodes = [];
   this.radius = radius;
 
   this.generateGrid();
@@ -110,7 +110,7 @@ Map.prototype.addHexesToNodes = function() {
   for(var coord in this.hexes) {
     for(var i = 0; i < 6; i++) {
       var nodeId = this.hexes[coord].getNodeId(i);
-      var node = this.nodes[nodeId];
+      var node = this.gameNodes[nodeId];
       node.connectedHexes.push(coord);
     }
   }
@@ -144,8 +144,8 @@ Map.prototype.countHexesControlledBy = function(player) {
 Map.prototype.canClaim = function(player, id) {
   var adjNodes = [];
   // get all adjacent nodes to the given nodeId
-  for(var i = 0; i < this.nodes[id].connectedHexes.length; i++) {
-    var hex = this.hexes[this.nodes[id].connectedHexes[i]];
+  for(var i = 0; i < this.gameNodes[id].connectedHexes.length; i++) {
+    var hex = this.hexes[this.gameNodes[id].connectedHexes[i]];
 
     // find the nodes adjacent to the given node
     for(var j = 0; j < 6; j++) {
@@ -156,7 +156,7 @@ Map.prototype.canClaim = function(player, id) {
     }
   }
   for(var i = 0; i < adjNodes.length; i++) {
-    if(this.nodes[adjNodes[i]].owner == player) {
+    if(this.gameNodes[adjNodes[i]].owner == player) {
       return true;
     }
   }
@@ -169,7 +169,7 @@ Map.prototype.canClaim = function(player, id) {
 Map.prototype.claim = function(player, id) {
   // gives a given node to a player.
   if(this.canClaim(player, id)) {
-    this.nodes[id].owner = player;
+    this.gameNodes[id].owner = player;
   }
 
   // update the hexes
@@ -191,7 +191,7 @@ Map.prototype.assignHexes = function() {
     }
 
     for(var i = 0; i < 6; i++) {
-      ownerships[this.nodes[hex.getNodeId(i)].owner] += 1;
+      ownerships[this.gameNodes[hex.getNodeId(i)].owner] += 1;
     }
 
     // find the majority
@@ -232,7 +232,7 @@ Map.prototype.addNodes = function(q, r, lastId) {
       this.get(q, r).setNodeId(lastId, i);
       var newNode = new Node();
       newNode.owner = 0;
-      this.nodes.push(newNode);
+      this.gameNodes.push(newNode);
       lastId += 1;
     }
   }
