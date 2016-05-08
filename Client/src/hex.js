@@ -16,6 +16,8 @@ export class Hex {
 		this.cornerPoints = [];
 	}
 	
+	//assign game attributes to hex
+	
 	checkIfInGame() {
 		if (this.hexId.col === 0) {
 			return false;
@@ -46,15 +48,11 @@ export class Hex {
 		
 	};
 
-	positionChildNodes() {
-
-		let cornerPoint1 = this.calcCorner(1);
-		this.rightChildNode.setCenter(cornerPoint1);
-
-		let cornerPoint2 = this.calcCorner(2);
-		this.leftChildNode.setCenter(cornerPoint2);
-
+	getIdString() {
+		return "#h" + this.hexId.col + this.hexId.row;
 	}
+
+	//calculate positioning
 
 	setCenter(point) {
 		this.center = point;
@@ -80,23 +78,50 @@ export class Hex {
 	getCorner(i) {
 		return this.cornerPoints[i];
 	}
+
+	positionChildNodes() {
+
+		let cornerPoint1 = this.calcCorner(1);
+		this.rightChildNode.setCenter(cornerPoint1);
+
+		let cornerPoint2 = this.calcCorner(2);
+		this.leftChildNode.setCenter(cornerPoint2);
+
+	}
+	
+	//render hex
   
   draw() {
 
-			var lineFunction = d3.svg.line()
-				.x(function (d) {
-					return d.x;
-				})
-				.y(function (d) {
-					return d.y;
-				})
-				.interpolate("linear");
+		var lineFunction = d3.svg.line()
+			.x(function (d) {
+				return d.x;
+			})
+			.y(function (d) {
+				return d.y;
+			})
+			.interpolate("linear");
 
-			d3.select('#board')
-				.append("path")
+		let testClass = d3.select('#board')
+			.append("path")
+				.attr("id", this.getIdString())
 				.attr("d", lineFunction(this.cornerPoints))
-				.style("stroke", "black");
-		
+				.attr("class", "notClicked")
+				// .attr("class");
+		// console.log(testClass);
+				// .style("stroke", "black")
+				.on("click", this.changeColor());
 	}
-
+	
+	changeColor() {
+			console.log(d3.select('path').attr("class"));
+			// if (element.style("fill") === "white") {
+			// 	d3.select(this.getIdString())
+			// 		.style("fill", "black");
+			// }	else {
+			// 	d3.select(this.getIdString())
+			// 		.style("fill", "white");
+			// }
+	}
+	
 }

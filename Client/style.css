@@ -1,0 +1,11 @@
+circle {
+    fill: red;
+}
+
+.clicked {
+    fill: black;
+}
+
+.notClicked {
+    fill: white;
+}

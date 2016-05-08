@@ -30,8 +30,7 @@ export class Node {
 				.append("circle")
 				.attr("cx", this.center.x)
 				.attr("cy", this.center.y)
-				.attr("r", this.radius)
-				.attr("fill", "red");
+				.attr("r", this.radius);
 
 		console.log(this.getHexId())
 

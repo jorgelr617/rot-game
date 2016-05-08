@@ -15,6 +15,8 @@ export class Map {
 		this.hexRadius = 50;
 	}
 
+	//create data structure
+	
 	createAllColumns() {
 		
 		let currentColumn = [];
@@ -64,6 +66,8 @@ export class Map {
 		return column;
 	}
 	
+	//position elements
+	
 	positionHexes(startPoint) {
 
 		let point = startPoint;
@@ -85,23 +89,25 @@ export class Map {
 			}
 			
 			if (colCounter < Math.floor(this.numberOfColumns/2)) {
-				point.moveY(this.calcNewColumnTopHexY(currentColumn.length + 1));
+				point.moveY(this.calcNextColumnTopHexY(currentColumn.length + 1));
 			} else {
-				point.moveY(this.calcNewColumnTopHexY(currentColumn.length));
+				point.moveY(this.calcNextColumnTopHexY(currentColumn.length));
 			}
 			point.moveX(this.hexRadius*1.5);
 		}
 		
 	}
 	
-	calcNewColumnTopHexY(hexCounter) {
+	calcNextColumnTopHexY(hexCounter) {
 		return (-1*Math.sqrt(3) * this.hexRadius * hexCounter)+ Math.sqrt(3)/2*this.hexRadius;
 	};
 
+	//render elements
+	
 	drawGameHexes() {
 		this.hexColumns.forEach(function (column) {
 			column.forEach(function (hex) {
-				if (hex.isInGame === true) { hex.draw(); }
+				if (hex.isInGame === true) { hex.draw();}
 			});
 		});
 	}
