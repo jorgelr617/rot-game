@@ -71,9 +71,9 @@
 		function setEvents(){
 			oThumb.obj.bind('mousedown', start);
 			oTrack.obj.bind('mouseup', drag);
-			if(options.scroll && this.addEventListener){
-				oWrapper[0].addEventListener('DOMMouseScroll', wheel, false);
-				oWrapper[0].addEventListener('mousewheel', wheel, false );
+			if(options.scroll && this.toggleClickClass){
+				oWrapper[0].toggleClickClass('DOMMouseScroll', wheel, false);
+				oWrapper[0].toggleClickClass('mousewheel', wheel, false );
 			}
 			else if(options.scroll){oWrapper[0].onmousewheel = wheel;}
 		};

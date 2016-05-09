@@ -1544,8 +1544,8 @@ function JSONPPolling (opts) {
   this.query.j = this.index;
 
   // prevent spurious errors from being emitted when the window is unloaded
-  if (global.document && global.addEventListener) {
-    global.addEventListener('beforeunload', function () {
+  if (global.document && global.toggleClickClass) {
+    global.toggleClickClass('beforeunload', function () {
       if (self.script) self.script.onerror = empty;
     }, false);
   }
@@ -2114,8 +2114,8 @@ if (global.document) {
   Request.requests = {};
   if (global.attachEvent) {
     global.attachEvent('onunload', unloadHandler);
-  } else if (global.addEventListener) {
-    global.addEventListener('beforeunload', unloadHandler, false);
+  } else if (global.toggleClickClass) {
+    global.toggleClickClass('beforeunload', unloadHandler, false);
   }
 }
 
