@@ -18,6 +18,7 @@ export class Hex {
 	
 	//assign game attributes to hex
 	
+	//refactor
 	checkIfInGame() {
 		if (this.hexId.col === 0) {
 			return false;
@@ -32,9 +33,9 @@ export class Hex {
 
 	createChildNodes() {
 
-		this.rightChildNode = new Node(this.hexId);
+		this.rightChildNode = new Node(this.getIdString(), "right");
 
-		this.leftChildNode = new Node(this.hexId);
+		this.leftChildNode = new Node(this.getIdString(), "left");
 		
 		if(this.hexId.col === 0)	{
 			this.isInGame = false;
@@ -49,7 +50,7 @@ export class Hex {
 	};
 
 	getIdString() {
-		return "#h" + this.hexId.col + this.hexId.row;
+		return "h" + this.hexId.col + this.hexId.row;
 	}
 
 	//calculate positioning
@@ -102,26 +103,11 @@ export class Hex {
 			})
 			.interpolate("linear");
 
-		let testClass = d3.select('#board')
+		d3.select('#board')
 			.append("path")
 				.attr("id", this.getIdString())
 				.attr("d", lineFunction(this.cornerPoints))
-				.attr("class", "notClicked")
-				// .attr("class");
-		// console.log(testClass);
-				// .style("stroke", "black")
-				.on("click", this.changeColor());
-	}
-	
-	changeColor() {
-			console.log(d3.select('path').attr("class"));
-			// if (element.style("fill") === "white") {
-			// 	d3.select(this.getIdString())
-			// 		.style("fill", "black");
-			// }	else {
-			// 	d3.select(this.getIdString())
-			// 		.style("fill", "white");
-			// }
+				.classed({'hex': true, 'hexNotClicked': true});
 	}
 	
 }

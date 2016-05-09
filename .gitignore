@@ -6,5 +6,3 @@ Client/node_modules
 .ds_store
 /idea
 client/build
-bundle.js
-

@@ -107,7 +107,7 @@ export class Map {
 	drawGameHexes() {
 		this.hexColumns.forEach(function (column) {
 			column.forEach(function (hex) {
-				if (hex.isInGame === true) { hex.draw();}
+				if (hex.isInGame === true) { hex.draw(); }
 			});
 		});
 	}

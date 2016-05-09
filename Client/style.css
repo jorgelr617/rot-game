@@ -1,11 +1,24 @@
-circle {
-    fill: red;
+.hex {
+    stroke: black;
 }
 
-.clicked {
+.hexNotClicked {
+    fill: white;
+}
+
+.hexClicked {
     fill: black;
 }
 
-.notClicked {
-    fill: white;
+.node {
+    stroke: white;
 }
+
+.nodeNotClicked {
+    fill: red;
+}
+
+.nodeClicked {
+    fill: blue;
+}
+
