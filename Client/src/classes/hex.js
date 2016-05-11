@@ -4,55 +4,60 @@ import * as d3 from "d3";
 
 export class Hex {
 	
-	constructor(hexId) {
+	constructor(hexIdArray) {
 
-		this.hexId = hexId;
-		this.isInGame = this.checkIfInGame();
+		this.hexIdArray = hexIdArray;
+		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
+		
+		this.controlNodes = {};
+
 		this.leftChildNode = undefined;
 		this.rightChildNode = undefined;
-
+		
+		this.isInGame = this.checkIfInGame();
+		this.ownerId = null;
+		
 		this.center = undefined;
 		this.hexRadius = 50;
 		this.cornerPoints = [];
 	}
-	
+
 	//assign game attributes to hex
-	
-	//refactor
+
 	checkIfInGame() {
-		if (this.hexId.col === 0) {
+		//if the hex is in the left-most column, it is not in the game.
+		if (this.hexIdArray[0] === 0) {
 			return false;
-		} else if (this.hexId.col === 6) {
+		//if the hex is in the right-most column, it is not in the game.
+		} else if (this.hexIdArray[0] === 6) {
 			return false;
-		} else if (this.hexId.row === 0) {
-			return false;
-		} else {
-			return true;
-		}
+			//finally, if the hex is not the top hex in the column, the hex is in the game.
+		} else return this.hexIdArray[1] !== 0;
 	}
 
 	createChildNodes() {
 
-		this.rightChildNode = new Node(this.getIdString(), "right");
+		let nodeIdArray = this.hexIdArray;
+		nodeIdArray.push("R");
+		this.rightChildNode = new Node(nodeIdArray);
 
-		this.leftChildNode = new Node(this.getIdString(), "left");
+		nodeIdArray.splice(2, 1, "L");
+		this.leftChildNode = new Node(nodeIdArray);
 		
-		if(this.hexId.col === 0)	{
-			this.isInGame = false;
+		if(this.hexIdArray[0] === 0)	{
 			this.leftChildNode.isInGame = false;
 		}
 		
-		if(this.hexId.col === 6) {
-			this.isInGame = false;
+		if(this.hexIdArray[0] === 6) {
 			this.rightChildNode.isInGame = false;
 		}
 		
 	};
-
-	getIdString() {
-		return "h" + this.hexId.col + this.hexId.row;
+	
+	setControlNodes(arrayOfNodes) {
+		this.controlNodes = arrayOfNodes;
 	}
-
+	
 	//calculate positioning
 
 	setCenter(point) {
@@ -71,7 +76,7 @@ export class Hex {
   }
 
   setCorners() {
-    for(var i = 0; i < 6; i++) {
+    for(var i = 0; i < 7; i++) {
       this.cornerPoints.push(this.calcCorner(i));
     }
   }
@@ -105,7 +110,7 @@ export class Hex {
 
 		d3.select('#board')
 			.append("path")
-				.attr("id", this.getIdString())
+				.attr("id", this.hexIdString)
 				.attr("d", lineFunction(this.cornerPoints))
 				.classed({'hex': true, 'hexNotClicked': true});
 	}

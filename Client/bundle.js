@@ -21,13 +21,19 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Hex = exports.Hex = function () {
-	function Hex(hexId) {
+	function Hex(hexIdArray) {
 		_classCallCheck(this, Hex);
 
-		this.hexId = hexId;
-		this.isInGame = this.checkIfInGame();
+		this.hexIdArray = hexIdArray;
+		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
+
+		this.controlNodes = {};
+
 		this.leftChildNode = undefined;
 		this.rightChildNode = undefined;
+
+		this.isInGame = this.checkIfInGame();
+		this.ownerId = null;
 
 		this.center = undefined;
 		this.hexRadius = 50;
@@ -36,44 +42,41 @@ var Hex = exports.Hex = function () {
 
 	//assign game attributes to hex
 
-	//refactor
-
-
 	_createClass(Hex, [{
 		key: "checkIfInGame",
 		value: function checkIfInGame() {
-			if (this.hexId.col === 0) {
+			//if the hex is in the left-most column, it is not in the game.
+			if (this.hexIdArray[0] === 0) {
 				return false;
-			} else if (this.hexId.col === 6) {
-				return false;
-			} else if (this.hexId.row === 0) {
-				return false;
-			} else {
-				return true;
-			}
+				//if the hex is in the right-most column, it is not in the game.
+			} else if (this.hexIdArray[0] === 6) {
+					return false;
+					//finally, if the hex is not the top hex in the column, the hex is in the game.
+				} else return this.hexIdArray[1] !== 0;
 		}
 	}, {
 		key: "createChildNodes",
 		value: function createChildNodes() {
 
-			this.rightChildNode = new _node.Node(this.getIdString(), "right");
+			var nodeIdArray = this.hexIdArray;
+			nodeIdArray.push("R");
+			this.rightChildNode = new _node.Node(nodeIdArray);
 
-			this.leftChildNode = new _node.Node(this.getIdString(), "left");
+			nodeIdArray.splice(2, 1, "L");
+			this.leftChildNode = new _node.Node(nodeIdArray);
 
-			if (this.hexId.col === 0) {
-				this.isInGame = false;
+			if (this.hexIdArray[0] === 0) {
 				this.leftChildNode.isInGame = false;
 			}
 
-			if (this.hexId.col === 6) {
-				this.isInGame = false;
+			if (this.hexIdArray[0] === 6) {
 				this.rightChildNode.isInGame = false;
 			}
 		}
 	}, {
-		key: "getIdString",
-		value: function getIdString() {
-			return "h" + this.hexId.col + this.hexId.row;
+		key: "setControlNodes",
+		value: function setControlNodes(arrayOfNodes) {
+			this.controlNodes = arrayOfNodes;
 		}
 
 		//calculate positioning
@@ -98,7 +101,7 @@ var Hex = exports.Hex = function () {
 	}, {
 		key: "setCorners",
 		value: function setCorners() {
-			for (var i = 0; i < 6; i++) {
+			for (var i = 0; i < 7; i++) {
 				this.cornerPoints.push(this.calcCorner(i));
 			}
 		}
@@ -130,18 +133,120 @@ var Hex = exports.Hex = function () {
 				return d.y;
 			}).interpolate("linear");
 
-			d3.select('#board').append("path").attr("id", this.getIdString()).attr("d", lineFunction(this.cornerPoints)).classed({ 'hex': true, 'hexNotClicked': true });
+			d3.select('#board').append("path").attr("id", this.hexIdString).attr("d", lineFunction(this.cornerPoints)).classed({ 'hex': true, 'hexNotClicked': true });
 		}
 	}]);
 
 	return Hex;
 }();
-},{"./node.js":4,"./point.js":5,"d3":6}],2:[function(require,module,exports){
+},{"./node.js":2,"./point.js":3,"d3":6}],2:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.Node = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _d = require("d3");
+
+var d3 = _interopRequireWildcard(_d);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Node = exports.Node = function () {
+	function Node(nodeIdArray) {
+		_classCallCheck(this, Node);
+
+		this.nodeIdArray = nodeIdArray;
+		this.nodeIdString = "n" + this.nodeIdArray[0] + this.nodeIdArray[1] + this.nodeIdArray[2];
+
+		this.hexesThatItCanAffect = [];
+
+		this.isInGame = true;
+		this.ownerId = null;
+
+		this.center = undefined;
+		this.radius = 10;
+	}
+
+	_createClass(Node, [{
+		key: "addHexThatItCanAffect",
+		value: function addHexThatItCanAffect(hexIdArray) {
+			this.hexesThatItCanAffect.push(hexIdArray);
+		}
+	}, {
+		key: "setOwner",
+		value: function setOwner(ownerId) {
+			this.ownerId = ownerId;
+		}
+	}, {
+		key: "setCenter",
+		value: function setCenter(point) {
+			this.center = point;
+		}
+	}, {
+		key: "getCenter",
+		value: function getCenter() {
+			return this.center;
+		}
+	}, {
+		key: "draw",
+		value: function draw() {
+
+			d3.select('#board').append("circle").attr("cx", this.center.x).attr("cy", this.center.y).attr("r", this.radius).attr("id", this.nodeIdString).classed({ 'node': true, 'nodeNotClicked': true });
+		}
+	}]);
+
+	return Node;
+}();
+},{"d3":6}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Point = exports.Point = function () {
+	function Point(x, y) {
+		_classCallCheck(this, Point);
+
+		this.x = x;
+		this.y = y;
+	}
+
+	_createClass(Point, [{
+		key: "moveX",
+		value: function moveX(dist) {
+			this.x += dist;
+		}
+	}, {
+		key: "moveY",
+		value: function moveY(dist) {
+			this.y += dist;
+		}
+	}, {
+		key: "distance",
+		value: function distance(refPoint) {
+			return Math.sqrt(Math.pow(this.x - refPoint.x, 2) + Math.pow(this.y - refPoint.y, 2));
+		}
+	}]);
+
+	return Point;
+}();
+},{}],4:[function(require,module,exports){
 "use strict";
 
 var _map = require("./map.js");
 
-var _point = require("./point.js");
+var _point = require("./classes/point.js");
 
 var _d = require("d3");
 
@@ -153,6 +258,8 @@ $(document).ready(function () {
 
 	var boardWidth = $(window).width() - 25;
 	var boardHeight = $(window).height() - 25;
+
+	//figure out where to place point so that board is in the middle of screen
 	var startPoint = new _point.Point(boardWidth / 4, boardHeight / 3);
 
 	d3.select('#board').attr('x', 0).attr('y', 0).attr('width', boardWidth).attr('height', boardHeight).style('background', 'tan');
@@ -199,7 +306,7 @@ $(document).ready(function () {
 		}
 	}
 });
-},{"./map.js":3,"./point.js":5,"d3":6}],3:[function(require,module,exports){
+},{"./classes/point.js":3,"./map.js":5,"d3":6}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -209,7 +316,7 @@ exports.Map = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _hex = require("./hex.js");
+var _hex = require("./classes/hex.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -225,6 +332,7 @@ var Map = exports.Map = function () {
 		this.numberOfGameColumns = 2 * (this.maxGameHexes - this.minGameHexes) + 1;
 		this.numberOfColumns = this.numberOfGameColumns + 2;
 
+		//find out how to set these parameters where they can be accessed from anywhere
 		this.hexRadius = 50;
 	}
 
@@ -261,7 +369,11 @@ var Map = exports.Map = function () {
 
 			for (var rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
 
-				var currentHex = new _hex.Hex({ col: this.colId, row: rowCounter });
+				var hexIdArray = [];
+				hexIdArray.push(this.colId);
+				hexIdArray.push(rowCounter);
+
+				var currentHex = new _hex.Hex(hexIdArray);
 
 				currentHex.createChildNodes();
 
@@ -358,101 +470,7 @@ var Map = exports.Map = function () {
 
 	return Map;
 }();
-},{"./hex.js":1}],4:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.Node = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _d = require("d3");
-
-var d3 = _interopRequireWildcard(_d);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Node = exports.Node = function () {
-	function Node(parentHexId, nodeId) {
-		_classCallCheck(this, Node);
-
-		this.parentHexId = parentHexId;
-		this.nodeId = nodeId;
-		this.idString = this.parentHexId + " " + this.nodeId;
-		this.isInGame = true;
-
-		this.center = undefined;
-		this.radius = 10;
-	}
-
-	_createClass(Node, [{
-		key: "getHexId",
-		value: function getHexId() {
-			return this.parentHexId;
-		}
-	}, {
-		key: "setCenter",
-		value: function setCenter(point) {
-			this.center = point;
-		}
-	}, {
-		key: "getCenter",
-		value: function getCenter() {
-			return this.center;
-		}
-	}, {
-		key: "draw",
-		value: function draw() {
-
-			d3.select('#board').append("circle").attr("cx", this.center.x).attr("cy", this.center.y).attr("r", this.radius).attr("id", this.idString).classed({ 'node': true, 'nodeNotClicked': true });
-		}
-	}]);
-
-	return Node;
-}();
-},{"d3":6}],5:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Point = exports.Point = function () {
-	function Point(x, y) {
-		_classCallCheck(this, Point);
-
-		this.x = x;
-		this.y = y;
-	}
-
-	_createClass(Point, [{
-		key: "moveX",
-		value: function moveX(dist) {
-			this.x += dist;
-		}
-	}, {
-		key: "moveY",
-		value: function moveY(dist) {
-			this.y += dist;
-		}
-	}, {
-		key: "distance",
-		value: function distance(refPoint) {
-			return Math.sqrt(Math.pow(this.x - refPoint.x, 2) + Math.pow(this.y - refPoint.y, 2));
-		}
-	}]);
-
-	return Point;
-}();
-},{}],6:[function(require,module,exports){
+},{"./classes/hex.js":1}],6:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.5.16"
@@ -10007,4 +10025,4 @@ var Point = exports.Point = function () {
   });
   if (typeof define === "function" && define.amd) this.d3 = d3, define(d3); else if (typeof module === "object" && module.exports) module.exports = d3; else this.d3 = d3;
 }();
-},{}]},{},[2]);
+},{}]},{},[4]);

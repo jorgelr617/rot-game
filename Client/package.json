@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "babel src -d build && browserify build/index.js -o bundle.js",
-    "watch": "watch -p 'src/*.js' -c 'npm run build'"
+    "watch": "watch -p 'src/**/*.js' -c 'npm run build'"
   },
   "keywords": [
     "babel",

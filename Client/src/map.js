@@ -1,4 +1,4 @@
-import {Hex} from "./hex.js"
+import {Hex} from "./classes/hex.js"
 
 export class Map {
 
@@ -12,6 +12,7 @@ export class Map {
 		this.numberOfGameColumns = 2*(this.maxGameHexes - this.minGameHexes) + 1;
 		this.numberOfColumns = this.numberOfGameColumns + 2;
 		
+		//find out how to set these parameters where they can be accessed from anywhere
 		this.hexRadius = 50;
 	}
 
@@ -23,7 +24,7 @@ export class Map {
 		let numOfHexesInColumn = this.minGameHexes;
 
 		for (let colId = 0; colId < this.numberOfColumns; colId++) {
-
+			
 			if (colId < Math.floor(this.numberOfColumns/2)) {
 
 				currentColumn = this.createColumn(numOfHexesInColumn, colId);
@@ -49,7 +50,11 @@ export class Map {
 
 		for (let rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
 
-			let currentHex = new Hex({ col: this.colId, row: rowCounter });
+			let hexIdArray = [];
+			hexIdArray.push(this.colId);
+			hexIdArray.push(rowCounter);
+			
+			let currentHex = new Hex(hexIdArray);
 			
 			currentHex.createChildNodes();
 
@@ -65,6 +70,10 @@ export class Map {
 		}
 		return column;
 	}
+
+	//add node and hex mutual dependencies
+	
+
 	
 	//position elements
 	
