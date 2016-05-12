@@ -24,7 +24,7 @@ var Hex = exports.Hex = function () {
 	function Hex(hexIdArray) {
 		_classCallCheck(this, Hex);
 
-		this.hexIdArray = hexIdArray;
+		this.hexIdArray = hexIdArray.slice(0);
 		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
 
 		this.controlNodes = {};
@@ -36,11 +36,13 @@ var Hex = exports.Hex = function () {
 		this.ownerId = null;
 
 		this.center = undefined;
-		this.hexRadius = 50;
 		this.cornerPoints = [];
+
+		//TODO: get this value from the Map class without using the constructor
+		this.hexRadius = 50;
 	}
 
-	//assign game attributes to hex
+	//server-side game state information
 
 	_createClass(Hex, [{
 		key: "checkIfInGame",
@@ -58,12 +60,12 @@ var Hex = exports.Hex = function () {
 		key: "createChildNodes",
 		value: function createChildNodes() {
 
-			var nodeIdArray = this.hexIdArray;
+			var nodeIdArray = this.hexIdArray.slice(0);
 			nodeIdArray.push("R");
-			this.rightChildNode = new _node.Node(nodeIdArray);
+			this.rightChildNode = new _node.Node(nodeIdArray.slice(0));
 
 			nodeIdArray.splice(2, 1, "L");
-			this.leftChildNode = new _node.Node(nodeIdArray);
+			this.leftChildNode = new _node.Node(nodeIdArray.slice(0));
 
 			if (this.hexIdArray[0] === 0) {
 				this.leftChildNode.isInGame = false;
@@ -79,7 +81,7 @@ var Hex = exports.Hex = function () {
 			this.controlNodes = arrayOfNodes;
 		}
 
-		//calculate positioning
+		//client-side positioning and rendering
 
 	}, {
 		key: "setCenter",
@@ -120,9 +122,6 @@ var Hex = exports.Hex = function () {
 			var cornerPoint2 = this.calcCorner(2);
 			this.leftChildNode.setCenter(cornerPoint2);
 		}
-
-		//render hex
-
 	}, {
 		key: "draw",
 		value: function draw() {
@@ -170,8 +169,12 @@ var Node = exports.Node = function () {
 		this.ownerId = null;
 
 		this.center = undefined;
+
+		//TODO: get this value from the Map class without using the constructor
 		this.radius = 10;
 	}
+
+	//server-side game state information
 
 	_createClass(Node, [{
 		key: "addHexThatItCanAffect",
@@ -183,6 +186,9 @@ var Node = exports.Node = function () {
 		value: function setOwner(ownerId) {
 			this.ownerId = ownerId;
 		}
+
+		//client-side positioning and rendering
+
 	}, {
 		key: "setCenter",
 		value: function setCenter(point) {
@@ -256,23 +262,22 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 $(document).ready(function () {
 
+	//the board will not span the entire window in the finished version
 	var boardWidth = $(window).width() - 25;
 	var boardHeight = $(window).height() - 25;
 
-	//figure out where to place point so that board is in the middle of screen
+	//TODO: figure out where to place point so that board is always centered in html element that contains it
 	var startPoint = new _point.Point(boardWidth / 4, boardHeight / 3);
 
 	d3.select('#board').attr('x', 0).attr('y', 0).attr('width', boardWidth).attr('height', boardHeight).style('background', 'tan');
 
 	var testMap = new _map.Map();
 
-	testMap.createAllColumns();
+	testMap.createGameState();
 
-	testMap.positionHexes(startPoint);
+	testMap.positionElements(startPoint);
 
-	testMap.drawGameHexes();
-
-	testMap.drawGameNodes();
+	testMap.renderElements();
 
 	addClickListeners();
 
@@ -324,40 +329,47 @@ var Map = exports.Map = function () {
 	function Map() {
 		_classCallCheck(this, Map);
 
-		this.hexColumns = [];
-		this.gameNodes = [];
+		//these two objects will exist on the server and will track
+		//the ids and ownership properties of the game elements
+		this.serverHexes = {};
+		this.serverNodes = {};
+
+		//these two objects will exist on the client and will include everything
+		//that the server objects contain as well as positioning information unique to the client
+		this.clientHexes = {};
+		this.clientNodes = {};
 
 		this.minGameHexes = 3;
 		this.maxGameHexes = 5;
+
 		this.numberOfGameColumns = 2 * (this.maxGameHexes - this.minGameHexes) + 1;
 		this.numberOfColumns = this.numberOfGameColumns + 2;
 
-		//find out how to set these parameters where they can be accessed from anywhere
+		//TODO: calculate this variable based on the client screen size and the min and max game hexes
+		//TODO: make this value available to the Hex and Node classes without passing it through the constructor
 		this.hexRadius = 50;
 	}
 
-	//create data structure
+	//functions for creating the game data structure. They will execute on the server
+	//and the two server data objects that they create will be sent to the clients
 
 	_createClass(Map, [{
-		key: "createAllColumns",
-		value: function createAllColumns() {
+		key: "createGameState",
+		value: function createGameState() {
 
-			var currentColumn = [];
 			var numOfHexesInColumn = this.minGameHexes;
 
 			for (var colId = 0; colId < this.numberOfColumns; colId++) {
 
 				if (colId < Math.floor(this.numberOfColumns / 2)) {
 
-					currentColumn = this.createColumn(numOfHexesInColumn, colId);
+					this.createColumn(numOfHexesInColumn, colId);
 					numOfHexesInColumn++;
 				} else {
 
-					currentColumn = this.createColumn(numOfHexesInColumn, colId);
+					this.createColumn(numOfHexesInColumn, colId);
 					numOfHexesInColumn--;
 				}
-
-				this.hexColumns.push(currentColumn);
 			}
 		}
 	}, {
@@ -365,58 +377,104 @@ var Map = exports.Map = function () {
 		value: function createColumn(numOfHexes, colId) {
 
 			this.colId = colId;
-			var column = [];
 
 			for (var rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
 
+				//creates a two element array to uniquely identify each hex
 				var hexIdArray = [];
 				hexIdArray.push(this.colId);
 				hexIdArray.push(rowCounter);
 
 				var currentHex = new _hex.Hex(hexIdArray);
 
+				//each hex will be the parent of two child nodes
+				//so that we can easily locate any node and also not have duplicates
 				currentHex.createChildNodes();
 
-				column.push(currentHex);
+				//here is were we build the data objects that the server will manage
+				this.serverHexes[currentHex.hexIdArray] = currentHex;
 
 				if (currentHex.leftChildNode.isInGame === true) {
-					this.gameNodes.push(currentHex.leftChildNode);
+					this.serverNodes[currentHex.leftChildNode.nodeIdArray] = currentHex.leftChildNode;
 				}
 				if (currentHex.rightChildNode.isInGame === true) {
-					this.gameNodes.push(currentHex.rightChildNode);
+					this.serverNodes[currentHex.rightChildNode.nodeIdArray] = currentHex.rightChildNode;
 				}
 			}
-			return column;
 		}
 
-		//position elements
+		//this is where we get each element from the server's data structure and assign it a position in the DOM
+
+		//once we assign it a position, we store the elements in a data structure on the client similar
+		// to what is on the server so that the two can communicate
+
+		//once this client structure is created, the server will update the client data as the game progresses
+
+		//once we have positions on the client-side, we can render the elements
 
 	}, {
-		key: "positionHexes",
-		value: function positionHexes(startPoint) {
+		key: "positionElements",
+		value: function positionElements(startPoint) {
 
+			var rowCounter = undefined;
+			var hexIdArray = undefined;
 			var point = startPoint;
-			var currentColumn = undefined;
-			var currentHex = undefined;
 
-			for (var colCounter = 0; colCounter < this.hexColumns.length; colCounter++) {
+			for (var colCounter = 0; colCounter < this.numberOfGameColumns + 2; colCounter++) {
 
-				currentColumn = this.hexColumns[colCounter];
+				rowCounter = 0;
 
-				for (var rowCounter = 0; rowCounter < currentColumn.length; rowCounter++) {
+				while (rowCounter < this.maxGameHexes + 1) {
 
-					currentHex = currentColumn[rowCounter];
-					currentHex.setCenter(point);
-					currentHex.setCorners();
-					currentHex.positionChildNodes();
-					point.moveY(Math.sqrt(3) * this.hexRadius);
+					hexIdArray = [];
+					hexIdArray.push(colCounter);
+					hexIdArray.push(rowCounter);
+
+					if (this.serverHexes.hasOwnProperty(hexIdArray)) {
+
+						//get hex from server and assign it (and its child nodes) a position
+						var currentHex = this.serverHexes[hexIdArray];
+						currentHex.setCenter(point);
+						currentHex.setCorners();
+						currentHex.positionChildNodes();
+
+						//store the modified elements in the client data structure
+						this.clientHexes[hexIdArray] = currentHex;
+
+						if (currentHex.leftChildNode.isInGame === true) {
+							this.clientNodes[currentHex.leftChildNode.nodeIdArray] = currentHex.leftChildNode;
+						}
+						if (currentHex.rightChildNode.isInGame === true) {
+							this.clientNodes[currentHex.rightChildNode.nodeIdArray] = currentHex.rightChildNode;
+						}
+						point.moveY(Math.sqrt(3) * this.hexRadius);
+					}
+
+					rowCounter++;
 				}
 
-				if (colCounter < Math.floor(this.numberOfColumns / 2)) {
-					point.moveY(this.calcNextColumnTopHexY(currentColumn.length + 1));
-				} else {
-					point.moveY(this.calcNextColumnTopHexY(currentColumn.length));
+				//TODO: Refactor this switch statement into a loop - I had to break it out like this for debugging
+				switch (colCounter) {
+					case 0:
+						point.moveY(this.calcNextColumnTopHexY(4));
+						break;
+					case 1:
+						point.moveY(this.calcNextColumnTopHexY(5));
+						break;
+					case 2:
+						point.moveY(this.calcNextColumnTopHexY(6));
+						break;
+					case 3:
+						point.moveY(this.calcNextColumnTopHexY(6));
+						break;
+					case 4:
+						point.moveY(this.calcNextColumnTopHexY(5));
+						break;
+					case 5:
+						point.moveY(this.calcNextColumnTopHexY(4));
+						break;
 				}
+
 				point.moveX(this.hexRadius * 1.5);
 			}
 		}
@@ -426,45 +484,22 @@ var Map = exports.Map = function () {
 			return -1 * Math.sqrt(3) * this.hexRadius * hexCounter + Math.sqrt(3) / 2 * this.hexRadius;
 		}
 	}, {
-		key: "drawGameHexes",
+		key: "renderElements",
+		value: function renderElements() {
 
-
-		//render elements
-
-		value: function drawGameHexes() {
-			this.hexColumns.forEach(function (column) {
-				column.forEach(function (hex) {
-					if (hex.isInGame === true) {
-						hex.draw();
-					}
-				});
-			});
-		}
-	}, {
-		key: "drawGameNodes",
-		value: function drawGameNodes() {
-			this.gameNodes.forEach(function (node) {
-				node.draw();
-			});
-		}
-	}, {
-		key: "drawAllHexes",
-		value: function drawAllHexes() {
-			this.hexColumns.forEach(function (column) {
-				column.forEach(function (hex) {
+			for (var hexId in this.clientHexes) {
+				var hex = this.clientHexes[hexId];
+				if (hex.isInGame === true) {
 					hex.draw();
-				});
-			});
-		}
-	}, {
-		key: "drawAllNodes",
-		value: function drawAllNodes() {
-			this.hexColumns.forEach(function (column) {
-				column.forEach(function (hex) {
-					hex.leftChildNode.draw();
-					hex.rightChildNode.draw();
-				});
-			});
+				}
+			}
+
+			for (var nodeId in this.clientNodes) {
+				var node = this.clientNodes[nodeId];
+				if (node.isInGame === true) {
+					node.draw();
+				}
+			}
 		}
 	}]);
 
@@ -6083,7 +6118,7 @@ var Map = exports.Map = function () {
       function insertChild(n, d, x, y, x1, y1, x2, y2) {
         var xm = (x1 + x2) * .5, ym = (y1 + y2) * .5, right = x >= xm, below = y >= ym, i = below << 1 | right;
         n.leaf = false;
-        n = n.gameNodes[i] || (n.gameNodes[i] = d3_geom_quadtreeNode());
+        n = n.clientNodes[i] || (n.clientNodes[i] = d3_geom_quadtreeNode());
         if (right) x1 = xm; else x2 = xm;
         if (below) y1 = ym; else y2 = ym;
         insert(n, d, x, y, x1, y1, x2, y2);
@@ -6136,7 +6171,7 @@ var Map = exports.Map = function () {
   function d3_geom_quadtreeNode() {
     return {
       leaf: true,
-      gameNodes: [],
+      clientNodes: [],
       point: null,
       x: null,
       y: null
@@ -6144,7 +6179,7 @@ var Map = exports.Map = function () {
   }
   function d3_geom_quadtreeVisit(f, node, x1, y1, x2, y2) {
     if (!f(node, x1, y1, x2, y2)) {
-      var sx = (x1 + x2) * .5, sy = (y1 + y2) * .5, children = node.gameNodes;
+      var sx = (x1 + x2) * .5, sy = (y1 + y2) * .5, children = node.clientNodes;
       if (children[0]) d3_geom_quadtreeVisit(f, children[0], x1, y1, sx, sy);
       if (children[1]) d3_geom_quadtreeVisit(f, children[1], sx, y1, x2, sy);
       if (children[2]) d3_geom_quadtreeVisit(f, children[2], x1, sy, sx, y2);
@@ -6164,7 +6199,7 @@ var Map = exports.Map = function () {
           closestPoint = point;
         }
       }
-      var children = node.gameNodes, xm = (x1 + x2) * .5, ym = (y1 + y2) * .5, right = x >= xm, below = y >= ym;
+      var children = node.clientNodes, xm = (x1 + x2) * .5, ym = (y1 + y2) * .5, right = x >= xm, below = y >= ym;
       for (var i = below << 1 | right, j = i + 4; i < j; ++i) {
         if (node = children[i & 3]) switch (i & 3) {
          case 0:
@@ -6782,7 +6817,7 @@ var Map = exports.Map = function () {
         alpha: alpha
       });
     };
-    force.gameNodes = function(x) {
+    force.clientNodes = function(x) {
       if (!arguments.length) return nodes;
       nodes = x;
       return force;
@@ -6933,7 +6968,7 @@ var Map = exports.Map = function () {
     var cx = 0, cy = 0;
     quad.charge = 0;
     if (!quad.leaf) {
-      var nodes = quad.gameNodes, n = nodes.length, i = -1, c;
+      var nodes = quad.clientNodes, n = nodes.length, i = -1, c;
       while (++i < n) {
         c = nodes[i];
         if (c == null) continue;
@@ -7017,7 +7052,7 @@ var Map = exports.Map = function () {
   };
   function d3_layout_hierarchyRebind(object, hierarchy) {
     d3.rebind(object, hierarchy, "sort", "children", "value");
-    object.gameNodes = object;
+    object.clientNodes = object;
     object.links = d3_layout_hierarchyLinks;
     return object;
   }

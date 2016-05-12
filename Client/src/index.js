@@ -4,10 +4,11 @@ import * as d3 from "d3";
 
 $(document).ready(function() {
   
+	//the board will not span the entire window in the finished version
 	let boardWidth = $(window).width() - 25;
 	let boardHeight = $(window).height() - 25;
 
-	//figure out where to place point so that board is in the middle of screen
+	//TODO: figure out where to place point so that board is always centered in html element that contains it
 	let startPoint = new Point(boardWidth/4, boardHeight/3);
 	
   d3.select('#board')
@@ -19,14 +20,12 @@ $(document).ready(function() {
 	
 	var testMap = new Map();
 
-	testMap.createAllColumns();
+	testMap.createGameState();
 	
-	testMap.positionHexes(startPoint);
+	testMap.positionElements(startPoint);
 
-	testMap.drawGameHexes();
+	testMap.renderElements();
 	
-	testMap.drawGameNodes();
-
 	addClickListeners();
 
 	function addClickListeners() {

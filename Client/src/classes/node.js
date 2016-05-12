@@ -13,9 +13,13 @@ export class Node {
 		this.ownerId = null;
 		
 		this.center = undefined;
+		
+		//TODO: get this value from the Map class without using the constructor
 		this.radius = 10;
 
   }
+	
+	//server-side game state information
 
 	addHexThatItCanAffect(hexIdArray) {
 		this.hexesThatItCanAffect.push(hexIdArray);
@@ -24,6 +28,8 @@ export class Node {
 	setOwner(ownerId) {
 		this.ownerId = ownerId;
 	}
+	
+	//client-side positioning and rendering
 
 	setCenter(point) {
 		this.center = point;

@@ -6,7 +6,7 @@ export class Hex {
 	
 	constructor(hexIdArray) {
 
-		this.hexIdArray = hexIdArray;
+		this.hexIdArray = hexIdArray.slice(0);
 		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
 		
 		this.controlNodes = {};
@@ -18,11 +18,14 @@ export class Hex {
 		this.ownerId = null;
 		
 		this.center = undefined;
-		this.hexRadius = 50;
 		this.cornerPoints = [];
+		
+		//TODO: get this value from the Map class without using the constructor
+		this.hexRadius = 50;
+		
 	}
 
-	//assign game attributes to hex
+	//server-side game state information
 
 	checkIfInGame() {
 		//if the hex is in the left-most column, it is not in the game.
@@ -37,12 +40,12 @@ export class Hex {
 
 	createChildNodes() {
 
-		let nodeIdArray = this.hexIdArray;
+		let nodeIdArray = this.hexIdArray.slice(0);
 		nodeIdArray.push("R");
-		this.rightChildNode = new Node(nodeIdArray);
+		this.rightChildNode = new Node(nodeIdArray.slice(0));
 
 		nodeIdArray.splice(2, 1, "L");
-		this.leftChildNode = new Node(nodeIdArray);
+		this.leftChildNode = new Node(nodeIdArray.slice(0));
 		
 		if(this.hexIdArray[0] === 0)	{
 			this.leftChildNode.isInGame = false;
@@ -57,8 +60,8 @@ export class Hex {
 	setControlNodes(arrayOfNodes) {
 		this.controlNodes = arrayOfNodes;
 	}
-	
-	//calculate positioning
+
+	//client-side positioning and rendering
 
 	setCenter(point) {
 		this.center = point;
@@ -94,8 +97,6 @@ export class Hex {
 		this.leftChildNode.setCenter(cornerPoint2);
 
 	}
-	
-	//render hex
   
   draw() {
 
