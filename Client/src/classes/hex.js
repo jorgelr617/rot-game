@@ -9,13 +9,12 @@ export class Hex {
 		this.hexIdArray = hexIdArray.slice(0);
 		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
 		
-		this.controlNodes = {};
+		this.controlNodes = [];
 
 		this.leftChildNode = undefined;
 		this.rightChildNode = undefined;
 		
 		this.isInGame = this.checkIfInGame();
-		this.ownerId = null;
 		
 		this.center = undefined;
 		this.cornerPoints = [];
@@ -60,7 +59,7 @@ export class Hex {
 	setControlNodes(arrayOfNodes) {
 		this.controlNodes = arrayOfNodes;
 	}
-
+	
 	//client-side positioning and rendering
 
 	setCenter(point) {

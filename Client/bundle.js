@@ -27,13 +27,12 @@ var Hex = exports.Hex = function () {
 		this.hexIdArray = hexIdArray.slice(0);
 		this.hexIdString = "H" + this.hexIdArray[0] + this.hexIdArray[1];
 
-		this.controlNodes = {};
+		this.controlNodes = [];
 
 		this.leftChildNode = undefined;
 		this.rightChildNode = undefined;
 
 		this.isInGame = this.checkIfInGame();
-		this.ownerId = null;
 
 		this.center = undefined;
 		this.cornerPoints = [];
@@ -266,14 +265,16 @@ $(document).ready(function () {
 	var boardWidth = $(window).width() - 25;
 	var boardHeight = $(window).height() - 25;
 
-	//TODO: figure out where to place point so that board is always centered in html element that contains it
+	//TODO: figure out where to place starting point so that board is always centered in html element that contains it
 	var startPoint = new _point.Point(boardWidth / 4, boardHeight / 3);
 
 	d3.select('#board').attr('x', 0).attr('y', 0).attr('width', boardWidth).attr('height', boardHeight).style('background', 'tan');
-
+	//
 	var testMap = new _map.Map();
 
 	testMap.createGameState();
+
+	testMap.assignControlNodes();
 
 	testMap.positionElements(startPoint);
 
@@ -300,6 +301,33 @@ $(document).ready(function () {
 		} else {
 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
 		}
+
+		var hexIdArray = convertHexIdStringtoArray($hex[0].id);
+		var hex = testMap.clientHexes[hexIdArray];
+
+		for (var nodeId in hex.controlNodes) {
+			var $node = $("#n" + hex.controlNodes[nodeId].join(''));
+			if ($node.hasClass('nodeNotClicked')) {
+				$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+			} else {
+				$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+			}
+		}
+	}
+
+	function convertHexIdStringtoArray(hexIdString) {
+		var arrayToReturn = [];
+		arrayToReturn.push(Number(hexIdString.charAt(1)));
+		arrayToReturn.push(Number(hexIdString.charAt(2)));
+		return arrayToReturn;
+	}
+
+	function convertNodeIdStringtoArray(nodeIdString) {
+		var arrayToReturn = [];
+		arrayToReturn.push(Number(nodeIdString.charAt(1)));
+		arrayToReturn.push(Number(nodeIdString.charAt(2)));
+		arrayToReturn.push(nodeIdString.charAt(3));
+		return arrayToReturn;
 	}
 
 	function nodeToggleClickClass() {
@@ -308,6 +336,18 @@ $(document).ready(function () {
 			$node.removeClass('nodeNotClicked').addClass('nodeClicked');
 		} else {
 			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+		}
+
+		var nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+		var node = testMap.clientNodes[nodeIdArray];
+
+		for (var hexId in node.hexesThatItCanAffect) {
+			var $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
+			if ($hex.hasClass('hexNotClicked')) {
+				$hex.removeClass('hexNotClicked').addClass('hexClicked');
+			} else {
+				$hex.removeClass('hexClicked').addClass('hexNotClicked');
+			}
 		}
 	}
 });
@@ -379,7 +419,7 @@ var Map = exports.Map = function () {
 			this.colId = colId;
 
 			for (var rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
-
+				// debugger;
 				//creates a two element array to uniquely identify each hex
 				var hexIdArray = [];
 				hexIdArray.push(this.colId);
@@ -401,6 +441,77 @@ var Map = exports.Map = function () {
 					this.serverNodes[currentHex.rightChildNode.nodeIdArray] = currentHex.rightChildNode;
 				}
 			}
+		}
+	}, {
+		key: "assignControlNodes",
+		value: function assignControlNodes() {
+			for (var hexId in this.serverHexes) {
+				var hex = this.serverHexes[hexId];
+				if (hex.checkIfInGame()) {
+					this.calcHexControlNodes(hex);
+				}
+			}
+		}
+	}, {
+		key: "calcHexControlNodes",
+		value: function calcHexControlNodes(hex) {
+
+			var hexIdArray = hex.hexIdArray.slice(0);
+			var nodeIdArray = [];
+			var topHexIdArray = [];
+			var leftHexIdArray = [];
+			var rightHexIdArray = [];
+
+			//add top nodes
+			topHexIdArray[0] = hexIdArray[0];
+			topHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[topHexIdArray].leftChildNode.nodeIdArray);
+			nodeIdArray.push(this.serverHexes[topHexIdArray].rightChildNode.nodeIdArray);
+
+			//add bottom nodes
+			nodeIdArray.push(hex.leftChildNode.nodeIdArray);
+			nodeIdArray.push(hex.rightChildNode.nodeIdArray);
+
+			if (hexIdArray[0] < 3) {
+
+				//add left node
+				leftHexIdArray[0] = hexIdArray[0] - 1;
+				leftHexIdArray[1] = hexIdArray[1] - 1;
+				nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+				//add right node
+				rightHexIdArray[0] = hexIdArray[0] + 1;
+				rightHexIdArray[1] = hexIdArray[1];
+				nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			} else if (hexIdArray[0] === 3) {
+
+				//add left node
+				leftHexIdArray[0] = hexIdArray[0] - 1;
+				leftHexIdArray[1] = hexIdArray[1] - 1;
+				nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+				//add right node
+				rightHexIdArray[0] = hexIdArray[0] + 1;
+				rightHexIdArray[1] = hexIdArray[1] - 1;
+				nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			} else {
+
+				//add left node
+				leftHexIdArray[0] = hexIdArray[0] - 1;
+				leftHexIdArray[1] = hexIdArray[1];
+				nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+				//add right node
+				rightHexIdArray[0] = hexIdArray[0] + 1;
+				rightHexIdArray[1] = hexIdArray[1] - 1;
+				nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			}
+
+			for (var i in nodeIdArray) {
+				this.serverNodes[nodeIdArray[i]].hexesThatItCanAffect.push(hexIdArray);
+			}
+
+			hex.setControlNodes(nodeIdArray);
 		}
 
 		//this is where we get each element from the server's data structure and assign it a position in the DOM

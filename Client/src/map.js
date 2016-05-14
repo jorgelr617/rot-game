@@ -55,7 +55,7 @@ export class Map {
 		this.colId = colId;
 
 		for (let rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
-
+      // debugger;
 			//creates a two element array to uniquely identify each hex
 			let hexIdArray = [];
 			hexIdArray.push(this.colId);
@@ -80,6 +80,80 @@ export class Map {
 		}
 		
 	}
+
+	assignControlNodes() {
+		for (let hexId in this.serverHexes) {
+			let hex = this.serverHexes[hexId];
+			if(hex.checkIfInGame()) {
+				this.calcHexControlNodes(hex);
+			}
+		}
+	}
+
+	calcHexControlNodes(hex) {
+
+		let hexIdArray = hex.hexIdArray.slice(0);
+		let nodeIdArray = [];
+		let topHexIdArray = [];
+		let leftHexIdArray = [];
+		let rightHexIdArray = [];
+
+			//add top nodes
+			topHexIdArray[0] = hexIdArray[0];
+			topHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[topHexIdArray].leftChildNode.nodeIdArray);
+			nodeIdArray.push(this.serverHexes[topHexIdArray].rightChildNode.nodeIdArray);
+
+			//add bottom nodes
+			nodeIdArray.push(hex.leftChildNode.nodeIdArray);
+			nodeIdArray.push(hex.rightChildNode.nodeIdArray);
+
+		if(hexIdArray[0] < 3) {
+
+			//add left node
+			leftHexIdArray[0] = hexIdArray[0] - 1;
+			leftHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+			//add right node
+			rightHexIdArray[0] = hexIdArray[0] + 1;
+			rightHexIdArray[1] = hexIdArray[1];
+			nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+
+		} else if (hexIdArray[0] === 3) {
+
+			//add left node
+			leftHexIdArray[0] = hexIdArray[0] - 1;
+			leftHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+			//add right node
+			rightHexIdArray[0] = hexIdArray[0] + 1;
+			rightHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+
+		} else {
+
+			//add left node
+			leftHexIdArray[0] = hexIdArray[0] - 1;
+			leftHexIdArray[1] = hexIdArray[1];
+			nodeIdArray.push(this.serverHexes[leftHexIdArray].rightChildNode.nodeIdArray);
+
+			//add right node
+			rightHexIdArray[0] = hexIdArray[0] + 1;
+			rightHexIdArray[1] = hexIdArray[1] - 1;
+			nodeIdArray.push(this.serverHexes[rightHexIdArray].leftChildNode.nodeIdArray);
+
+		}
+
+		for (let i in nodeIdArray) {
+			this.serverNodes[nodeIdArray[i]].hexesThatItCanAffect.push(hexIdArray);
+		}
+
+		hex.setControlNodes(nodeIdArray);
+
+	}
+	
 
 	//this is where we get each element from the server's data structure and assign it a position in the DOM
 

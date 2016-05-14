@@ -8,7 +8,7 @@ $(document).ready(function() {
 	let boardWidth = $(window).width() - 25;
 	let boardHeight = $(window).height() - 25;
 
-	//TODO: figure out where to place point so that board is always centered in html element that contains it
+	//TODO: figure out where to place starting point so that board is always centered in html element that contains it
 	let startPoint = new Point(boardWidth/4, boardHeight/3);
 	
   d3.select('#board')
@@ -17,15 +17,17 @@ $(document).ready(function() {
 		.attr('width', boardWidth)
 		.attr('height', boardHeight)
 		.style('background', 'tan');
-	
+	//
 	var testMap = new Map();
 
 	testMap.createGameState();
+
+	testMap.assignControlNodes();
 	
 	testMap.positionElements(startPoint);
 
 	testMap.renderElements();
-	
+
 	addClickListeners();
 
 	function addClickListeners() {
@@ -38,7 +40,7 @@ $(document).ready(function() {
 			console.log("You clicked " + event.target.id);
 			nodeToggleClickClass(event);
 		});
-		
+
 	}
 
 	function hexToggleClickClass() {
@@ -48,7 +50,35 @@ $(document).ready(function() {
 		} else {
 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
 		}
+		
+		let hexIdArray = convertHexIdStringtoArray($hex[0].id);
+		let hex = testMap.clientHexes[hexIdArray];
+
+		for (let nodeId in hex.controlNodes) {
+			let $node = $("#n" + hex.controlNodes[nodeId].join(''));
+			if($node.hasClass('nodeNotClicked')){
+				$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+			} else {
+				$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+			}
+		}
 	}
+
+	function convertHexIdStringtoArray(hexIdString) {
+		let arrayToReturn = [];
+		arrayToReturn.push(Number(hexIdString.charAt(1)));
+		arrayToReturn.push(Number(hexIdString.charAt(2)));
+		return arrayToReturn;
+	}
+
+	function convertNodeIdStringtoArray(nodeIdString) {
+		let arrayToReturn = [];
+		arrayToReturn.push(Number(nodeIdString.charAt(1)));
+		arrayToReturn.push(Number(nodeIdString.charAt(2)));
+		arrayToReturn.push(nodeIdString.charAt(3));
+		return arrayToReturn;
+	}
+
 
 	function nodeToggleClickClass() {
 		let $node = $(event.target);
@@ -57,6 +87,19 @@ $(document).ready(function() {
 		} else {
 			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
 		}
+
+		let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+		let node = testMap.clientNodes[nodeIdArray];
+
+		for (let hexId in node.hexesThatItCanAffect) {
+			let $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
+			if($hex.hasClass('hexNotClicked')){
+				$hex.removeClass('hexNotClicked').addClass('hexClicked');
+			} else {
+				$hex.removeClass('hexClicked').addClass('hexNotClicked');
+			}
+		}
+
 	}
 	
 });
