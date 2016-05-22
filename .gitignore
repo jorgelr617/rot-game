@@ -3,6 +3,8 @@ Server/msg_infra/node_modules/
 Client/main/node_modules/
 *.npmignore
 Client/node_modules
+node_modules
 .ds_store
 /idea
 client/build
+dist
