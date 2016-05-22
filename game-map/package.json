@@ -1,5 +1,5 @@
 {
-  "name": "game-hex-map",
+  "name": "game-map",
   "version": "0.0.1",
   "main": "./dist/map.js",
   "scripts": {
@@ -12,6 +12,6 @@
   "devDependencies": {
     "babel-cli": "^6.9.0",
     "babel-preset-es2015": "^6.9.0",
-    "nodemon": "^1.9.2"
+    "watch-cli": "^0.2.1"
   }
 }
