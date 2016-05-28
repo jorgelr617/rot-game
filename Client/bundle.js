@@ -163,6 +163,7 @@ var Node = exports.Node = function () {
 		this.nodeIdString = "n" + this.nodeIdArray[0] + this.nodeIdArray[1] + this.nodeIdArray[2];
 
 		this.hexesThatItCanAffect = [];
+		this.neighborsIdArray = [];
 
 		this.isInGame = true;
 		this.ownerId = null;
@@ -276,6 +277,8 @@ $(document).ready(function () {
 
 	testMap.assignControlNodes();
 
+	testMap.assignNodeNeighbors();
+
 	testMap.positionElements(startPoint);
 
 	testMap.renderElements();
@@ -315,6 +318,49 @@ $(document).ready(function () {
 		}
 	}
 
+	// function nodeToggleClickClass() {
+	// 	let $node = $(event.target);
+	// 	if($node.hasClass('nodeNotClicked')){
+	// 		$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+	// 	} else {
+	// 		$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+	// 	}
+	//
+	// 	let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+	// 	let node = testMap.clientNodes[nodeIdArray];
+	//
+	// 	for (let hexId in node.hexesThatItCanAffect) {
+	// 		let $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
+	// 		if($hex.hasClass('hexNotClicked')){
+	// 			$hex.removeClass('hexNotClicked').addClass('hexClicked');
+	// 		} else {
+	// 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
+	// 		}
+	// 	}
+	//
+	// }
+
+	function nodeToggleClickClass() {
+		var $node = $(event.target);
+		if ($node.hasClass('nodeNotClicked')) {
+			$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+		} else {
+			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+		}
+
+		var nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+		var node = testMap.clientNodes[nodeIdArray];
+
+		node.neighborsIdArray.forEach(function (idArray) {
+			var $neighbor = $("#n" + idArray.join(''));
+			if ($neighbor.hasClass('nodeNotClicked')) {
+				$neighbor.removeClass('nodeNotClicked').addClass('nodeClicked');
+			} else {
+				$neighbor.removeClass('nodeClicked').addClass('nodeNotClicked');
+			}
+		});
+	}
+
 	function convertHexIdStringtoArray(hexIdString) {
 		var arrayToReturn = [];
 		arrayToReturn.push(Number(hexIdString.charAt(1)));
@@ -328,27 +374,6 @@ $(document).ready(function () {
 		arrayToReturn.push(Number(nodeIdString.charAt(2)));
 		arrayToReturn.push(nodeIdString.charAt(3));
 		return arrayToReturn;
-	}
-
-	function nodeToggleClickClass() {
-		var $node = $(event.target);
-		if ($node.hasClass('nodeNotClicked')) {
-			$node.removeClass('nodeNotClicked').addClass('nodeClicked');
-		} else {
-			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
-		}
-
-		var nodeIdArray = convertNodeIdStringtoArray($node[0].id);
-		var node = testMap.clientNodes[nodeIdArray];
-
-		for (var hexId in node.hexesThatItCanAffect) {
-			var $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
-			if ($hex.hasClass('hexNotClicked')) {
-				$hex.removeClass('hexNotClicked').addClass('hexClicked');
-			} else {
-				$hex.removeClass('hexClicked').addClass('hexNotClicked');
-			}
-		}
 	}
 });
 },{"./classes/point.js":3,"./map.js":5,"d3":6}],5:[function(require,module,exports){
@@ -451,6 +476,100 @@ var Map = exports.Map = function () {
 					this.calcHexControlNodes(hex);
 				}
 			}
+		}
+	}, {
+		key: "assignNodeNeighbors",
+		value: function assignNodeNeighbors() {
+			for (var nodeId in this.serverNodes) {
+				var node = this.serverNodes[nodeId];
+				if (node.isInGame) {
+					this.calcNodeNeighbors(node);
+				}
+			}
+		}
+	}, {
+		key: "calcNodeNeighbors",
+		value: function calcNodeNeighbors(node) {
+			var _this = this;
+
+			var nodeIdArray = node.nodeIdArray.slice(0);
+			var neighborsIdArray = [];
+			var firstNeighbor = [];
+			var secondNeighbor = [];
+			var thirdNeighbor = [];
+
+			if (nodeIdArray[2] === "L") {
+
+				firstNeighbor[0] = nodeIdArray[0];
+				firstNeighbor[1] = nodeIdArray[1];
+				firstNeighbor[2] = "R";
+
+				neighborsIdArray.push(firstNeighbor);
+
+				if (nodeIdArray[0] > 3) {
+
+					secondNeighbor[0] = nodeIdArray[0] - 1;
+					secondNeighbor[1] = nodeIdArray[1];
+					secondNeighbor[2] = "R";
+					neighborsIdArray.push(secondNeighbor);
+
+					thirdNeighbor[0] = nodeIdArray[0] - 1;
+					thirdNeighbor[1] = nodeIdArray[1] + 1;
+					thirdNeighbor[2] = "R";
+					neighborsIdArray.push(thirdNeighbor);
+				} else {
+
+					secondNeighbor[0] = nodeIdArray[0] - 1;
+					secondNeighbor[1] = nodeIdArray[1] - 1;
+					secondNeighbor[2] = "R";
+					neighborsIdArray.push(secondNeighbor);
+
+					thirdNeighbor[0] = nodeIdArray[0] - 1;
+					thirdNeighbor[1] = nodeIdArray[1];
+					thirdNeighbor[2] = "R";
+					neighborsIdArray.push(thirdNeighbor);
+				}
+			} else {
+
+				firstNeighbor[0] = nodeIdArray[0];
+				firstNeighbor[1] = nodeIdArray[1];
+				firstNeighbor[2] = "L";
+				neighborsIdArray.push(firstNeighbor);
+
+				if (nodeIdArray[0] > 2) {
+
+					secondNeighbor[0] = nodeIdArray[0] + 1;
+					secondNeighbor[1] = nodeIdArray[1] - 1;
+					secondNeighbor[2] = "L";
+					neighborsIdArray.push(secondNeighbor);
+
+					thirdNeighbor[0] = nodeIdArray[0] + 1;
+					thirdNeighbor[1] = nodeIdArray[1];
+					thirdNeighbor[2] = "L";
+					neighborsIdArray.push(thirdNeighbor);
+				} else {
+
+					secondNeighbor[0] = nodeIdArray[0] + 1;
+					secondNeighbor[1] = nodeIdArray[1];
+					secondNeighbor[2] = "L";
+					neighborsIdArray.push(secondNeighbor);
+
+					thirdNeighbor[0] = nodeIdArray[0] + 1;
+					thirdNeighbor[1] = nodeIdArray[1] + 1;
+					thirdNeighbor[2] = "L";
+					neighborsIdArray.push(thirdNeighbor);
+				}
+			}
+
+			var toServer = [];
+
+			neighborsIdArray.forEach(function (idArray) {
+				if (_this.serverNodes[idArray] !== undefined) {
+					toServer.push(idArray);
+				}
+			});
+
+			this.serverNodes[nodeIdArray].neighborsIdArray = toServer;
 		}
 	}, {
 		key: "calcHexControlNodes",

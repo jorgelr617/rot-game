@@ -1,7 +1,7 @@
 {
   "name": "game-map",
   "version": "0.0.1",
-  "main": "./dist/map.js",
+  "main": "./dist/index.js",
   "scripts": {
     "watch": "watch -p '**/*.js' -c 'npm start' ",
     "prestart": "babel src --out-dir dist",

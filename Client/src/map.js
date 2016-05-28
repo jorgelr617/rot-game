@@ -89,7 +89,104 @@ export class Map {
 			}
 		}
 	}
+	
+	assignNodeNeighbors() {
+		for (let nodeId in this.serverNodes) {
+			let node = this.serverNodes[nodeId];
+			if (node.isInGame) {
+				this.calcNodeNeighbors(node);
+			}
+		}
+	}
 
+	calcNodeNeighbors(node) {
+
+		let nodeIdArray = node.nodeIdArray.slice(0);
+		let neighborsIdArray = [];
+		let firstNeighbor = [];
+		let secondNeighbor = [];
+		let thirdNeighbor = [];
+
+		if (nodeIdArray[2] === "L") {
+
+			firstNeighbor[0] = nodeIdArray[0];
+			firstNeighbor[1] = nodeIdArray[1];
+			firstNeighbor[2] = "R";
+
+			neighborsIdArray.push(firstNeighbor);
+
+			if (nodeIdArray[0] > 3) {
+
+				secondNeighbor[0] = nodeIdArray[0] - 1;
+				secondNeighbor[1] = nodeIdArray[1];
+				secondNeighbor[2] = "R";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] - 1;
+				thirdNeighbor[1] = nodeIdArray[1] + 1;
+				thirdNeighbor[2] = "R";
+				neighborsIdArray.push(thirdNeighbor);
+
+			} else {
+
+				secondNeighbor[0] = nodeIdArray[0] - 1;
+				secondNeighbor[1] = nodeIdArray[1] - 1;
+				secondNeighbor[2] = "R";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] - 1;
+				thirdNeighbor[1] = nodeIdArray[1];
+				thirdNeighbor[2] = "R";
+				neighborsIdArray.push(thirdNeighbor);
+			}
+
+		} else {
+
+			firstNeighbor[0] = nodeIdArray[0];
+			firstNeighbor[1] = nodeIdArray[1];
+			firstNeighbor[2] = "L";
+			neighborsIdArray.push(firstNeighbor);
+
+			if (nodeIdArray[0] > 2) {
+
+				secondNeighbor[0] = nodeIdArray[0] + 1;
+				secondNeighbor[1] = nodeIdArray[1] - 1;
+				secondNeighbor[2] = "L";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] + 1;
+				thirdNeighbor[1] = nodeIdArray[1];
+				thirdNeighbor[2] = "L";
+				neighborsIdArray.push(thirdNeighbor);
+
+			} else {
+
+				secondNeighbor[0] = nodeIdArray[0] + 1;
+				secondNeighbor[1] = nodeIdArray[1];
+				secondNeighbor[2] = "L";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] + 1;
+				thirdNeighbor[1] = nodeIdArray[1] + 1;
+				thirdNeighbor[2] = "L";
+				neighborsIdArray.push(thirdNeighbor);
+
+			}
+
+		}
+
+		let toServer = [];
+
+		neighborsIdArray.forEach((idArray) => {
+			if (this.serverNodes[idArray] !== undefined) {
+				toServer.push(idArray);
+			}
+		});
+
+		this.serverNodes[nodeIdArray].neighborsIdArray = toServer;
+
+	}
+	
 	calcHexControlNodes(hex) {
 
 		let hexIdArray = hex.hexIdArray.slice(0);
@@ -153,6 +250,8 @@ export class Map {
 		hex.setControlNodes(nodeIdArray);
 
 	}
+
+	
 	
 
 	//this is where we get each element from the server's data structure and assign it a position in the DOM

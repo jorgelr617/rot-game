@@ -1,9 +1,10 @@
+import {Node} from "./classes/node.js";
 import {Hex} from "./classes/hex.js";
 import {Player} from "./classes/player.js";
 
-module.exports = {
+export class Map {
 
-	setup: function () {
+	constructor() {
 		
 		this.hexes = {};
 		this.nodes = {};
@@ -15,9 +16,11 @@ module.exports = {
 		this.numberOfGameColumns = 2 * (this.maxGameHexes - this.minGameHexes) + 1;
 		this.numberOfColumns = this.numberOfGameColumns + 2;
 
-	},
-	
-	createGameState: function () {
+	}
+
+	//functions for creating game objects
+
+	createGameState() {
 
 		let numOfHexesInColumn = this.minGameHexes;
 
@@ -25,24 +28,24 @@ module.exports = {
 
 			if (colId < Math.floor(this.numberOfColumns / 2)) {
 
-				this.createColumn(numOfHexesInColumn, colId);
+				this.createHexColumn(numOfHexesInColumn, colId);
 				numOfHexesInColumn++;
 
 			} else {
 
-				this.createColumn(numOfHexesInColumn, colId);
+				this.createHexColumn(numOfHexesInColumn, colId);
 				numOfHexesInColumn--;
 
 			}
 		}
-	},
+	}
 
-	createColumn: function(numOfHexes, colId) {
+	createHexColumn(numOfHexes, colId) {
 
 		this.colId = colId;
 
 		for (let rowCounter = 0; rowCounter < numOfHexes; rowCounter++) {
-			// debugger;
+
 			//creates a two element array to uniquely identify each hex
 			let hexIdArray = [];
 			hexIdArray.push(this.colId);
@@ -50,36 +53,53 @@ module.exports = {
 
 			let currentHex = new Hex(hexIdArray);
 
-			//each hex will be the parent of two child nodes
-			//so that we can easily locate any node and also not have duplicates
-			currentHex.createChildNodes();
-
-			//here is were we build the data objects that the server will manage
-			this.hexes[currentHex.hexIdArray] = currentHex;
-
-			if (currentHex.leftChildNode.isInGame === true) {
-				this.nodes[currentHex.leftChildNode.nodeIdArray] = currentHex.leftChildNode;
-			}
-			if (currentHex.rightChildNode.isInGame === true) {
-				this.nodes[currentHex.rightChildNode.nodeIdArray] = currentHex.rightChildNode;
+			if (currentHex.hexIdArray[0] !== 0 || 6) {
+				if (currentHex.hexIdArray[1] !== 0) {
+					this.hexes[hexIdArray] = currentHex;
+				}
 			}
 
+			this.createChildNodes(currentHex.hexIdArray);
+			
 		}
 
-	},
+	}
 
-	assignControlNodes: function() {
+	createChildNodes(hexIdArray) {
+
+		let nodeIdArray = hexIdArray.slice(0);
+
+		nodeIdArray.push("R");
+		let rightChildNode = new Node(nodeIdArray.slice(0));
+		if (hexIdArray[0] !== 6) {
+			this.nodes[nodeIdArray] = rightChildNode;
+		}
+
+		nodeIdArray.splice(2, 1, "L");
+		let leftChildNode = new Node(nodeIdArray.slice(0));
+		if (hexIdArray[0] !== 0) {
+			this.nodes[nodeIdArray] = leftChildNode;
+		}
+
+	};
+
+	createPlayers(playerIds) {
+		playerIds.forEach((id) => {
+			this.players[id] = new Player(id);
+		});
+	}
+
+
+	//functions for relating objects to each other
+
+	assignControlNodes() {
 		for (let hexId in this.hexes) {
 			let hex = this.hexes[hexId];
-			if (hex.checkIfInGame()) {
-				this.calcHexControlNodes(hex);
-			}
+			this.calcHexControlNodes(hex);
 		}
-		
-		
-	},
+	}
 
-	calcHexControlNodes: function(hex) {
+	calcHexControlNodes(hex) {
 
 		let hexIdArray = hex.hexIdArray.slice(0);
 		let nodeIdArray = [];
@@ -90,69 +110,163 @@ module.exports = {
 		//add top nodes
 		topHexIdArray[0] = hexIdArray[0];
 		topHexIdArray[1] = hexIdArray[1] - 1;
-		nodeIdArray.push(this.hexes[topHexIdArray].leftChildNode.nodeIdArray);
-		nodeIdArray.push(this.hexes[topHexIdArray].rightChildNode.nodeIdArray);
+		nodeIdArray.push(topHexIdArray.concat('L'));
+		nodeIdArray.push(topHexIdArray.concat('R'));
 
 		//add bottom nodes
-		nodeIdArray.push(hex.leftChildNode.nodeIdArray);
-		nodeIdArray.push(hex.rightChildNode.nodeIdArray);
+		nodeIdArray.push(hex.hexIdArray.concat('L'));
+		nodeIdArray.push(hex.hexIdArray.concat('R'));
 
 		if (hexIdArray[0] < 3) {
 
 			//add left node
 			leftHexIdArray[0] = hexIdArray[0] - 1;
 			leftHexIdArray[1] = hexIdArray[1] - 1;
-			nodeIdArray.push(this.hexes[leftHexIdArray].rightChildNode.nodeIdArray);
+			nodeIdArray.push(leftHexIdArray.concat('R'));
 
 			//add right node
 			rightHexIdArray[0] = hexIdArray[0] + 1;
 			rightHexIdArray[1] = hexIdArray[1];
-			nodeIdArray.push(this.hexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			nodeIdArray.push(rightHexIdArray.concat('L'));
 
 		} else if (hexIdArray[0] === 3) {
 
 			//add left node
 			leftHexIdArray[0] = hexIdArray[0] - 1;
 			leftHexIdArray[1] = hexIdArray[1] - 1;
-			nodeIdArray.push(this.hexes[leftHexIdArray].rightChildNode.nodeIdArray);
+			nodeIdArray.push(leftHexIdArray.concat('R'));
 
 			//add right node
 			rightHexIdArray[0] = hexIdArray[0] + 1;
 			rightHexIdArray[1] = hexIdArray[1] - 1;
-			nodeIdArray.push(this.hexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			nodeIdArray.push(rightHexIdArray.concat('L'));
 
 		} else {
 
 			//add left node
 			leftHexIdArray[0] = hexIdArray[0] - 1;
 			leftHexIdArray[1] = hexIdArray[1];
-			nodeIdArray.push(this.hexes[leftHexIdArray].rightChildNode.nodeIdArray);
+			nodeIdArray.push(leftHexIdArray.concat('R'));
 
 			//add right node
 			rightHexIdArray[0] = hexIdArray[0] + 1;
 			rightHexIdArray[1] = hexIdArray[1] - 1;
-			nodeIdArray.push(this.hexes[rightHexIdArray].leftChildNode.nodeIdArray);
+			nodeIdArray.push(rightHexIdArray.concat('L'));
 
 		}
 
-		for (let i in nodeIdArray) {
-			this.nodes[nodeIdArray[i]].hexesThatItCanAffect.push(hexIdArray);
-		}
-
-		hex.setControlNodes(nodeIdArray);
-
-	},
-	
-	createPlayers: function(playerIds) {
-		playerIds.forEach((id) => {
-			this.players[id] = new Player(id);
+		nodeIdArray.forEach((nodeId) => {
+			if(this.nodes[nodeId] !== undefined) {
+				this.nodes[nodeId].addHexThatItCanAffect(hexIdArray);
+			}
 		});
-	},
+
+		this.hexes[hexIdArray].setControlNodes(nodeIdArray);
+
+	}
+
+	assignNodeNeighbors() {
+		for (let nodeId in this.nodes) {
+			let node = this.nodes[nodeId];
+			this.calcNodeNeighbors(node);
+		}
+	}
+
+	calcNodeNeighbors(node) {
+
+		let nodeIdArray = node.nodeIdArray.slice(0);
+		let neighborsIdArray = [];
+		let firstNeighbor = [];
+		let secondNeighbor = [];
+		let thirdNeighbor = [];
+
+		if (nodeIdArray[2] === "L") {
+
+			firstNeighbor[0] = nodeIdArray[0];
+			firstNeighbor[1] = nodeIdArray[1];
+			firstNeighbor[2] = "R";
+
+			neighborsIdArray.push(firstNeighbor);
+
+			if (nodeIdArray[0] > 3) {
+
+				secondNeighbor[0] = nodeIdArray[0] - 1;
+				secondNeighbor[1] = nodeIdArray[1];
+				secondNeighbor[2] = "R";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] - 1;
+				thirdNeighbor[1] = nodeIdArray[1] + 1;
+				thirdNeighbor[2] = "R";
+				neighborsIdArray.push(thirdNeighbor);
+
+			} else {
+
+				secondNeighbor[0] = nodeIdArray[0] - 1;
+				secondNeighbor[1] = nodeIdArray[1] - 1;
+				secondNeighbor[2] = "R";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] - 1;
+				thirdNeighbor[1] = nodeIdArray[1];
+				thirdNeighbor[2] = "R";
+				neighborsIdArray.push(thirdNeighbor);
+			}
+
+		} else {
+
+			firstNeighbor[0] = nodeIdArray[0];
+			firstNeighbor[1] = nodeIdArray[1];
+			firstNeighbor[2] = "L";
+			neighborsIdArray.push(firstNeighbor);
+
+			if (nodeIdArray[0] > 2) {
+
+				secondNeighbor[0] = nodeIdArray[0] + 1;
+				secondNeighbor[1] = nodeIdArray[1] - 1;
+				secondNeighbor[2] = "L";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] + 1;
+				thirdNeighbor[1] = nodeIdArray[1];
+				thirdNeighbor[2] = "L";
+				neighborsIdArray.push(thirdNeighbor);
+
+			} else {
+
+				secondNeighbor[0] = nodeIdArray[0] + 1;
+				secondNeighbor[1] = nodeIdArray[1];
+				secondNeighbor[2] = "L";
+				neighborsIdArray.push(secondNeighbor);
+
+				thirdNeighbor[0] = nodeIdArray[0] + 1;
+				thirdNeighbor[1] = nodeIdArray[1] + 1;
+				thirdNeighbor[2] = "L";
+				neighborsIdArray.push(thirdNeighbor);
+
+			}
+
+		}
+
+		let toServer = [];
+
+		neighborsIdArray.forEach((idArray) => {
+			if (this.nodes[idArray] !== undefined) {
+				toServer.push(idArray);
+			}
+		});
+
+		this.nodes[nodeIdArray].neighborsIdArray = toServer;
+
+	}
+
 	
-	setNodeOwner: function(playerId, nodeIdArray) {
+	//functions for changing properties of game objects
+
+	setNodeOwner(playerId, nodeIdArray) {
 		this.nodes[nodeIdArray].setOwner(playerId);
 		this.players[playerId].ownedNodes.push(nodeIdArray);
 		console.log(this.nodes[nodeIdArray]);
 	}
 
-};
+}

@@ -23,6 +23,8 @@ $(document).ready(function() {
 	testMap.createGameState();
 
 	testMap.assignControlNodes();
+
+	testMap.assignNodeNeighbors();
 	
 	testMap.positionElements(startPoint);
 
@@ -64,6 +66,50 @@ $(document).ready(function() {
 		}
 	}
 
+	// function nodeToggleClickClass() {
+	// 	let $node = $(event.target);
+	// 	if($node.hasClass('nodeNotClicked')){
+	// 		$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+	// 	} else {
+	// 		$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+	// 	}
+	//
+	// 	let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+	// 	let node = testMap.clientNodes[nodeIdArray];
+	//
+	// 	for (let hexId in node.hexesThatItCanAffect) {
+	// 		let $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
+	// 		if($hex.hasClass('hexNotClicked')){
+	// 			$hex.removeClass('hexNotClicked').addClass('hexClicked');
+	// 		} else {
+	// 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
+	// 		}
+	// 	}
+	//
+	// }
+
+	function nodeToggleClickClass() {
+		let $node = $(event.target);
+		if($node.hasClass('nodeNotClicked')){
+			$node.removeClass('nodeNotClicked').addClass('nodeClicked');
+		} else {
+			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
+		}
+
+		let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
+		let node = testMap.clientNodes[nodeIdArray];
+
+		node.neighborsIdArray.forEach(function(idArray) {
+			let $neighbor = $("#n" + idArray.join(''));
+			if($neighbor.hasClass('nodeNotClicked')){
+				$neighbor.removeClass('nodeNotClicked').addClass('nodeClicked');
+			} else {
+				$neighbor.removeClass('nodeClicked').addClass('nodeNotClicked');
+			}
+		})
+
+	}
+
 	function convertHexIdStringtoArray(hexIdString) {
 		let arrayToReturn = [];
 		arrayToReturn.push(Number(hexIdString.charAt(1)));
@@ -80,27 +126,7 @@ $(document).ready(function() {
 	}
 
 
-	function nodeToggleClickClass() {
-		let $node = $(event.target);
-		if($node.hasClass('nodeNotClicked')){
-			$node.removeClass('nodeNotClicked').addClass('nodeClicked');
-		} else {
-			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
-		}
 
-		let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
-		let node = testMap.clientNodes[nodeIdArray];
-
-		for (let hexId in node.hexesThatItCanAffect) {
-			let $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
-			if($hex.hasClass('hexNotClicked')){
-				$hex.removeClass('hexNotClicked').addClass('hexClicked');
-			} else {
-				$hex.removeClass('hexClicked').addClass('hexNotClicked');
-			}
-		}
-
-	}
 	
 });
 
