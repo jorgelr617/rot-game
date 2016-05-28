@@ -1,0 +1,15 @@
+{
+  "name": "game-map",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "babel src --out-dir dist"
+  },
+  "author": "Mike Gomez <mikegomezg@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0",
+    "watch-cli": "^0.2.1"
+  }
+}

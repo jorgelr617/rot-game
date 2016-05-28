@@ -1,5 +1,6 @@
 import {Map} from "./map.js"
 import {Point} from "./classes/point.js"
+import * as GameMap from "../game-map";
 import * as d3 from "d3";
 
 $(document).ready(function() {
@@ -17,18 +18,15 @@ $(document).ready(function() {
 		.attr('width', boardWidth)
 		.attr('height', boardHeight)
 		.style('background', 'tan');
-	//
-	var testMap = new Map();
 
-	testMap.createGameState();
-
-	testMap.assignControlNodes();
-
-	testMap.assignNodeNeighbors();
+	let clientMap = new Map(GameMap.getNodes(), GameMap.getHexes(), GameMap.getPlayers());
 	
-	testMap.positionElements(startPoint);
+	clientMap.positionElements(startPoint);
 
-	testMap.renderElements();
+	clientMap.renderElements();
+
+	console.log(clientMap.nodes);
+	console.log(clientMap.hexes);
 
 	addClickListeners();
 
@@ -47,47 +45,13 @@ $(document).ready(function() {
 
 	function hexToggleClickClass() {
 		let $hex = $(event.target);
-		if($hex.hasClass('hexNotClicked')){
+		if ($hex.hasClass('hexNotClicked')) {
 			$hex.removeClass('hexNotClicked').addClass('hexClicked');
 		} else {
 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
 		}
-		
-		let hexIdArray = convertHexIdStringtoArray($hex[0].id);
-		let hex = testMap.clientHexes[hexIdArray];
-
-		for (let nodeId in hex.controlNodes) {
-			let $node = $("#n" + hex.controlNodes[nodeId].join(''));
-			if($node.hasClass('nodeNotClicked')){
-				$node.removeClass('nodeNotClicked').addClass('nodeClicked');
-			} else {
-				$node.removeClass('nodeClicked').addClass('nodeNotClicked');
-			}
-		}
 	}
-
-	// function nodeToggleClickClass() {
-	// 	let $node = $(event.target);
-	// 	if($node.hasClass('nodeNotClicked')){
-	// 		$node.removeClass('nodeNotClicked').addClass('nodeClicked');
-	// 	} else {
-	// 		$node.removeClass('nodeClicked').addClass('nodeNotClicked');
-	// 	}
-	//
-	// 	let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
-	// 	let node = testMap.clientNodes[nodeIdArray];
-	//
-	// 	for (let hexId in node.hexesThatItCanAffect) {
-	// 		let $hex = $("#H" + node.hexesThatItCanAffect[hexId].join(''));
-	// 		if($hex.hasClass('hexNotClicked')){
-	// 			$hex.removeClass('hexNotClicked').addClass('hexClicked');
-	// 		} else {
-	// 			$hex.removeClass('hexClicked').addClass('hexNotClicked');
-	// 		}
-	// 	}
-	//
-	// }
-
+	
 	function nodeToggleClickClass() {
 		let $node = $(event.target);
 		if($node.hasClass('nodeNotClicked')){
@@ -95,38 +59,7 @@ $(document).ready(function() {
 		} else {
 			$node.removeClass('nodeClicked').addClass('nodeNotClicked');
 		}
-
-		let nodeIdArray = convertNodeIdStringtoArray($node[0].id);
-		let node = testMap.clientNodes[nodeIdArray];
-
-		node.neighborsIdArray.forEach(function(idArray) {
-			let $neighbor = $("#n" + idArray.join(''));
-			if($neighbor.hasClass('nodeNotClicked')){
-				$neighbor.removeClass('nodeNotClicked').addClass('nodeClicked');
-			} else {
-				$neighbor.removeClass('nodeClicked').addClass('nodeNotClicked');
-			}
-		})
-
 	}
-
-	function convertHexIdStringtoArray(hexIdString) {
-		let arrayToReturn = [];
-		arrayToReturn.push(Number(hexIdString.charAt(1)));
-		arrayToReturn.push(Number(hexIdString.charAt(2)));
-		return arrayToReturn;
-	}
-
-	function convertNodeIdStringtoArray(nodeIdString) {
-		let arrayToReturn = [];
-		arrayToReturn.push(Number(nodeIdString.charAt(1)));
-		arrayToReturn.push(Number(nodeIdString.charAt(2)));
-		arrayToReturn.push(nodeIdString.charAt(3));
-		return arrayToReturn;
-	}
-
-
-
 	
 });
 

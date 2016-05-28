@@ -1,0 +1,24 @@
+.hex {
+    stroke: black;
+}
+
+.hexNotClicked {
+    fill: white;
+}
+
+.hexClicked {
+    fill: black;
+}
+
+.node {
+    stroke: white;
+}
+
+.nodeNotClicked {
+    fill: red;
+}
+
+.nodeClicked {
+    fill: blue;
+}
+

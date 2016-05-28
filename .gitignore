@@ -1,10 +1,6 @@
-Server/node_modules/
-Server/msg_infra/node_modules/
-Client/main/node_modules/
-*.npmignore
-Client/node_modules
-node_modules
+**/node_modules
+**/build
+**/dist
+**/bundle.js
 .ds_store
 /idea
-client/build
-dist
