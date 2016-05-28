@@ -53,9 +53,11 @@ export class Map {
 
 			let currentHex = new Hex(hexIdArray);
 
-			if (currentHex.hexIdArray[0] !== 0 || 6) {
-				if (currentHex.hexIdArray[1] !== 0) {
-					this.hexes[hexIdArray] = currentHex;
+			if (hexIdArray[0] !== 0) {
+				if (hexIdArray[0] !== 6) {
+					if (hexIdArray[1] !== 0) {
+						this.hexes[hexIdArray] = currentHex;
+					}
 				}
 			}
 
@@ -71,13 +73,13 @@ export class Map {
 
 		nodeIdArray.push("R");
 		let rightChildNode = new Node(nodeIdArray.slice(0));
-		if (hexIdArray[0] !== 6) {
+		if (hexIdArray[0] < 6) {
 			this.nodes[nodeIdArray] = rightChildNode;
 		}
 
 		nodeIdArray.splice(2, 1, "L");
 		let leftChildNode = new Node(nodeIdArray.slice(0));
-		if (hexIdArray[0] !== 0) {
+		if (hexIdArray[0] > 0) {
 			this.nodes[nodeIdArray] = leftChildNode;
 		}
 
@@ -155,13 +157,19 @@ export class Map {
 
 		}
 
+		let gameNodes = [];
+
 		nodeIdArray.forEach((nodeId) => {
-			if(this.nodes[nodeId] !== undefined) {
-				this.nodes[nodeId].addHexThatItCanAffect(hexIdArray);
+			if(nodeId in this.nodes) {
+				gameNodes.push(nodeId);
 			}
 		});
 
-		this.hexes[hexIdArray].setControlNodes(nodeIdArray);
+		gameNodes.forEach((nodeId) => {
+				this.nodes[nodeId].addHexThatItCanAffect(hexIdArray);
+		});
+
+		this.hexes[hexIdArray].setControlNodes(gameNodes);
 
 	}
 
