@@ -1,31 +1,18 @@
-var map = require("map.js")
-
-
-
-
-
 // Constructor
 function Game(firstPlayer) {
   // always initialize all instance properties
-  this.players[0] = firstPlayer; //This array should contain the player objects for the 4 people playing the game.  Included session id, etc.  By default the person that created the game will be player1
+  this.players = [firstPlayer]; //This array should contain the player objects for the 4 people playing the game.  Included session id, etc.  By default the person that created the game will be player1
   this.turn = 0;
-  this.map = new map.Map();
+  console.log('adding player:' + firstPlayer.id + " " + firstPlayer.playerName);
+  console.log('new game created');
 }
-
-Game.teamColors = [
-    "red",
-    "blue",
-    "green",
-    "orange",
-    "brown",
-    "black"
-]
 
 // class methods
 Game.prototype.addPlayer = function(newPlayer) {
     //This method adds an additional player to the game.  Cannot have more than 4 players
     if (this.players.length < 4) {
         this.players.push(newPlayer);
+        console.log(newPlayer.playerName + ' added to game');
     }
 };
 Game.prototype.removePlayer = function(newPlayer) {
