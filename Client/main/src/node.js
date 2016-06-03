@@ -1,21 +1,38 @@
 import {Point} from "./point.js"
 import {GameProperties} from "./gameProperties.js"
+import * as d3 from 'd3'
 
 export class Node {
 
   // place a node at the corner of each hex
-  constructor(context, x, y, radius) {
-    this.owner = 0;
+  constructor(map, x, y, radius, id) {
+    var self = this;
 
-    this.context = context;
+    //console.log("Node " + x + ", " + y + ", " + radius);
+    this.id = id;
+    this.map = map;
+    this.owner = 0;
+    this.center = new Point(x, y);
+    this.radius = radius;
+
+    this.graphic = d3.select("#board")
+                     .append("circle")
+                        .attr("cx", this.center.x)
+                        .attr("cy", this.center.y)
+                        .attr("r", this.radius)
+                        .attr("stroke", "black")
+                        .style("fill", this.fill())
+                        .on("click", function() {
+                          // update the color for this node
+                          console.log("Attempting to claim");
+                          if(self.map.canClaim(self.map.playerTurn, self.id))
+                            self.map.claim(self.map.playerTurn, self.id);
+
+                        })
     this.label = "";
 
     // used for coloring the nodes
     this.labelColor = "Black";
-    this.stroke = "black";
-
-    this.center = new Point(x, y);
-    this.radius = radius;
 
     // the corrindates of each connected hex
     this.connectedHexes = []; // should be about 3
@@ -28,32 +45,9 @@ export class Node {
     return GameProperties.teamColors[this.owner];
   }
 
-  /*
-    Determines if a given node has been clicked
-  */
-  clicked(screenX, screenY) {
-    if(this.center.distance(new Point(screenX, screenY)) <= this.radius) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
-
-  draw() {
-    this.context.beginPath()
-    this.context.arc(this.center.x, this.center.y, this.radius, 0, 2.0 * Math.PI);
-    this.context.closePath();
-    this.context.fillStyle = this.fill();
-    this.context.strokeStyle = this.stroke;
-    this.context.fill();
-    this.context.stroke();
-
-    // add the label
-    this.context.textAlign = "center"
-    this.context.font = "10px Arial"
-    this.context.fillStyle = this.labelColor
-    this.context.fillText(this.label, this.center.x, this.center.y)
+  updateFill() {
+    this.graphic.style("fill", this.fill())
   }
 
 

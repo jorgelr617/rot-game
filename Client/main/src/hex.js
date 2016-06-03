@@ -1,24 +1,37 @@
-
 import {GameProperties} from "./gameProperties.js"
 import {Point} from "./point.js"
+import * as d3 from "d3";
 
 export class Hex {
 
 
-  constructor(context, x, y, size) {
+  constructor(x, y, size) {
+    //console.log("Hex " + x + ", " + y + ", " + size);
+    this.degOffset = 0; // 0 is flat top, 30 is pointy top
+    this.center = new Point(x, y)
+    this.size = size;
+
+    var cornerPoints = this.corners();
+
+    console.log(cornerPoints);
+
+    var lineFunction = d3.svg.line()
+			                   .x(function (d) { return d.x; })
+                    		 .y(function (d) { return d.y; })
+			                   .interpolate("linear");
+
+    this.path = d3.select('#board')
+               		 .append("path")
+               				.attr("d", lineFunction(cornerPoints))
+                      .style("fill", this.fill())
 
     this.owner = 0;
     this.visited = false;
 
-    this.context = context;
     this.label = "";
 
     this.labelColor = "black";
     this.stroke = "black";
-
-    this.degOffset = 0; // 0 is flat top, 30 is pointy top
-    this.center = new Point(x, y)
-    this.size = size;
 
     this.nodeIds = [];
     for(var i = 0; i < 6; i++) {
@@ -48,6 +61,10 @@ export class Hex {
   }
 
 
+
+
+
+
   /*
     Gets the position of the ith corner of the hexagon.
   */
@@ -72,29 +89,22 @@ export class Hex {
   }
 
 
+
+
   /*
     Draws the hex to the current context
-  */
+
   draw() {
-    var cornerPoints = this.corners();
 
-    // draw the hex
-    this.context.beginPath()
-    this.context.moveTo(cornerPoints[0].x, cornerPoints[0].y);
-    for(var i = 1; i < 6; i++) {
-      this.context.lineTo(cornerPoints[i].x, cornerPoints[i].y);
-    }
-    this.context.closePath()
 
-    this.context.strokeStyle = this.stroke;
-    this.context.fillStyle = this.fill();
-    this.context.stroke()
-    this.context.fill()
 
-    // add the label
-    this.context.textAlign = "center"
-    this.context.font = "15px Arial"
-    this.context.fillStyle = this.labelColor
-    this.context.fillText(this.label, this.center.x, this.center.y)
   }
+  */
+
+  updateFill() {
+    this.path.style("fill", this.fill())
+  }
+
+
+
 }

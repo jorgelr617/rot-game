@@ -1,9 +1,5 @@
 var map = require("map.js")
 
-
-
-
-
 // Constructor
 function Game(firstPlayer) {
   // always initialize all instance properties

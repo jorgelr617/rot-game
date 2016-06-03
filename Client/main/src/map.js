@@ -27,8 +27,7 @@ export class Map {
     Radius: radius of the grid
     centerHex: the Hex in the center of the grid
   */
-  constructor(context, radius, nodeRadius, hexSize, center) {
-    this.context = context;
+  constructor(radius, nodeRadius, hexSize, center) {
     this.playerTurn = 1;
     this.playerCount = 4;
 
@@ -165,7 +164,8 @@ export class Map {
         var r2 = Math.min(this.radius, -q + this.radius);
         for (var r = r1; r <= r2; r++) {
           var screenCoord = this.hexToPixelFlat(q, r, this.hexSize);
-          var newHex = new Hex(this.context, this.center.x + screenCoord.x, this.center.y + screenCoord.y, this.hexSize);
+          console.log(this);
+          var newHex = new Hex(this.center.x + screenCoord.x, this.center.y + screenCoord.y, this.hexSize);
           newHex.label = q + "," + r;
           this.set(q, r, newHex);
           this.hexOrdering.push({q: q, r: r}) // for keeping track of how hexes are placed
@@ -252,6 +252,7 @@ export class Map {
     // gives a given node to a player.
     if(this.canClaim(player, id)) {
       this.nodes[id].owner = player;
+      this.nodes[id].updateFill();
     }
 
     // update the hexes
@@ -283,10 +284,13 @@ export class Map {
           maxIndex = i;
         }
       }
-      if(ownerships[maxIndex] != 0)
+      if(ownerships[maxIndex] != 0) {
         hex.owner = maxIndex;
-      else
+        hex.updateFill();
+      } else {
         hex.owner = 0;
+        hex.updateFill();
+      }
     }
   }
 
@@ -316,7 +320,7 @@ export class Map {
       if(this.get(q, r).getNodeId(i) == -1) {
         this.get(q, r).setNodeId(lastId, i);
         var corner = this.get(q, r).corner(i);
-        var newNode = new Node(this.context, corner.x, corner.y, this.nodeRadius);
+        var newNode = new Node(this, corner.x, corner.y, this.nodeRadius, lastId);
         newNode.owner = 0;
         newNode.label = lastId + "";
         this.nodes.push(newNode);
@@ -336,7 +340,7 @@ export class Map {
 
   /*
     Draws the entire map.
-  */
+
   draw() {
     for(var hex in this.hexes) {
       this.hexes[hex].draw();
@@ -346,12 +350,14 @@ export class Map {
       this.nodes[i].draw();
     }
   }
+  */
 
 
 
   /*
     Checks all the nodes to see if they have been clicked.
   */
+  /*
   nodeClicked(screenX, screenY) {
     for(var i = 0; i < this.nodes.length; i++) {
       if(this.nodes[i].clicked(screenX, screenY)) {
@@ -366,8 +372,9 @@ export class Map {
         }
       }
     }
-  }
 
+  }
+  */
 
 
 

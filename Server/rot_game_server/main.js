@@ -37,16 +37,16 @@ app.get('/', function (req, res) {
   res.send('Hello ' + req.session.username + '!<img src=/images/jetfighter.png alt="spaceship"><br /><a href="/chat.html">Sample Chat Page!</a>');
 });
 
-app.get('/game.js', function(req, res) {
+app.get('/game', function(req, res) {
   res.sendFile("/private/game.js");
 });
-app.get('/map.js', function(req, res) {
+app.get('/map', function(req, res) {
   res.sendFile("/private/map.js");
 });
-app.get('/hex.js', function(req, res) {
+app.get('/hex', function(req, res) {
   res.sendFile("/private/hex.js");
 });
-app.get('/node.js', function(req, res) {
+app.get('/node', function(req, res) {
   res.sendFile("/private/node.js");
 });
 

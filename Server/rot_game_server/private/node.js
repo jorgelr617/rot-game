@@ -1,5 +1,5 @@
 function Node() {
   this.owner = 0;
-  this.connectedHexes = []; 
-
+  this.connectedHexes = [];
+}
 module.exports = Node;

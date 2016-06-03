@@ -18,23 +18,27 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   TODO: Complete click functionality
           --> commit
           --> create new branch
+
+
+
 */
 
 (0, _jquery2.default)(document).ready(function () {
-  var container = document.createElement("div");
-  //container.addClass("container");
-
-  var canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
-
-  //container.appendChild(canvas);
-  document.body.appendChild(canvas);
-
-  var context = canvas.getContext("2d");
+  /*
+  var container = $("<div></div>", {class: "container"});
+  var canvas = $("<canvas></canvas>", {width: 1000, height: 1000});
+  
+  container.append(canvas);
+  $("body").append(canvas);
+    var context = canvas[0].getContext("2d");
+  var elemLeft = canvas[0].offsetLeft;
+  var elemTop = canvas[0].offsetTop;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  */
 
-  var testMap = new _map.Map(context, 5, // the radius of the hex grid in hexes
+  var svg = d3.select("svg").attr("width", 1000).attr("height", 1000);
+
+  var testMap = new _map.Map(5, // the radius of the hex grid in hexes
   10, // node radius
   30, // hex size
   { x: 450, y: 350 } // center
@@ -55,35 +59,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   testMap.claim(1, 50);
   testMap.assignHexes();
 
-  testMap.draw();
-
   //console.log(testMap);
 
   //var animator = new MapCreationAnimator(testMap);
   //animator.animate(400);
 
-  //var testNode = new Node(context, 30, 100, 20);
-  //var testHex = new Hex(context, 100, 100, 20);
+  //var testNode = new Node(30, 100, 20);
+  //var testHex = new Hex(100, 100, 20);
   //testHex.draw();
   //testNode.draw();
 
   // event handling
-  canvas.addEventListener("mousedown", function (evnt) {
-    /*
-    console.log("Client: " + [evnt.clientX, evnt.clientY]);
-    console.log("Screen: " + [evnt.screenX, evnt.screenY]);
-    console.log("Page: " + [evnt.pageX, evnt.pageY]);
-    if(testNode.clicked(evnt.clientX, evnt.clientY)) {
-      console.log("Clicked");
-        context.beginPath();
-      context.arc(evnt.clientX, evnt.clientY, 1, 0, 2.0 * Math.PI);
-      context.closePath();
-      context.fillStyle = "orange";
-      context.fill();
-    }
-    */
-    testMap.nodeClicked(evnt.pageX, evnt.pageY);
-  });
+
+  //canvas[0].addEventListener("mousedown", function(evnt) {
+  /*
+  console.log("Client: " + [evnt.clientX, evnt.clientY]);
+  console.log("Screen: " + [evnt.screenX, evnt.screenY]);
+  console.log("Page: " + [evnt.pageX, evnt.pageY]);
+  if(testNode.clicked(evnt.clientX, evnt.clientY)) {
+    console.log("Clicked");
+      context.beginPath();
+    context.arc(evnt.clientX, evnt.clientY, 1, 0, 2.0 * Math.PI);
+    context.closePath();
+    context.fillStyle = "orange";
+    context.fill();
+  }
+  */
+  //testMap.nodeClicked(evnt.pageX - elemLeft, evnt.pageY - elemTop);
+  //});
 });
 
 /*

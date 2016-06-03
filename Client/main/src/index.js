@@ -3,35 +3,42 @@ import {Map} from "./map.js"
 import {MapCreationAnimator} from "./mapCreationAnimator.js"
 import {Hex} from "./hex.js"
 import {Node} from "./node.js"
+import * as d3 from 'd3'
 
 
 /*
   TODO: Complete click functionality
           --> commit
           --> create new branch
+
+
+
 */
 
 
 $(document).ready(function() {
-  var container = document.createElement("div")
-  //container.addClass("container");
+  /*
+  var container = $("<div></div>", {class: "container"});
+  var canvas = $("<canvas></canvas>", {width: 1000, height: 1000});
 
-  var canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 1000;
 
-  //container.appendChild(canvas);
-  document.body.appendChild(canvas);
+  container.append(canvas);
+  $("body").append(canvas);
 
-  var context = canvas.getContext("2d");
+  var context = canvas[0].getContext("2d");
+  var elemLeft = canvas[0].offsetLeft;
+  var elemTop = canvas[0].offsetTop;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  */
 
+  var svg = d3.select("svg")
+                .attr("width", 1000)
+                .attr("height", 1000)
 
   var testMap = new Map(
-    context,
     5, // the radius of the hex grid in hexes
-    10, // node radius
-    30, // hex size
+    5, // node radius
+    15, // hex size
     {x:450, y:350} // center
   );
 
@@ -51,7 +58,6 @@ $(document).ready(function() {
   testMap.claim(1, 50);
   testMap.assignHexes();
 
-  testMap.draw();
 
 
   //console.log(testMap);
@@ -60,15 +66,17 @@ $(document).ready(function() {
   //animator.animate(400);
 
 
-  //var testNode = new Node(context, 30, 100, 20);
-  //var testHex = new Hex(context, 100, 100, 20);
+  //var testNode = new Node(30, 100, 20);
+  //var testHex = new Hex(100, 100, 20);
   //testHex.draw();
   //testNode.draw();
 
 
 
+
   // event handling
-  canvas.addEventListener("mousedown", function(evnt) {
+
+  //canvas[0].addEventListener("mousedown", function(evnt) {
     /*
     console.log("Client: " + [evnt.clientX, evnt.clientY]);
     console.log("Screen: " + [evnt.screenX, evnt.screenY]);
@@ -83,8 +91,9 @@ $(document).ready(function() {
       context.fill();
     }
     */
-    testMap.nodeClicked(evnt.pageX, evnt.pageY);
-  });
+    //testMap.nodeClicked(evnt.pageX - elemLeft, evnt.pageY - elemTop);
+  //});
+
 });
 
 

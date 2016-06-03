@@ -41,10 +41,9 @@ var Map = exports.Map = function () {
     centerHex: the Hex in the center of the grid
   */
 
-  function Map(context, radius, nodeRadius, hexSize, center) {
+  function Map(radius, nodeRadius, hexSize, center) {
     _classCallCheck(this, Map);
 
-    this.context = context;
     this.playerTurn = 1;
     this.playerCount = 4;
 
@@ -80,12 +79,15 @@ var Map = exports.Map = function () {
     // add nodes to all the hexes starting at the center hex
   }
 
-  /*
-    Set the hexagon at the axial position q, r
-  */
-
-
   _createClass(Map, [{
+    key: "fromJSON",
+    value: function fromJSON(jsonObj) {}
+
+    /*
+      Set the hexagon at the axial position q, r
+    */
+
+  }, {
     key: "set",
     value: function set(q, r, hex) {
       this.hexes[q + "," + r] = hex;
@@ -169,7 +171,7 @@ var Map = exports.Map = function () {
         var r2 = Math.min(this.radius, -q + this.radius);
         for (var r = r1; r <= r2; r++) {
           var screenCoord = this.hexToPixelFlat(q, r, this.hexSize);
-          var newHex = new _hex.Hex(this.context, this.center.x + screenCoord.x, this.center.y + screenCoord.y, this.hexSize);
+          var newHex = new _hex.Hex(this.center.x + screenCoord.x, this.center.y + screenCoord.y, this.hexSize);
           newHex.label = q + "," + r;
           this.set(q, r, newHex);
           this.hexOrdering.push({ q: q, r: r }); // for keeping track of how hexes are placed
@@ -262,6 +264,7 @@ var Map = exports.Map = function () {
       // gives a given node to a player.
       if (this.canClaim(player, id)) {
         this.nodes[id].owner = player;
+        this.nodes[id].updateFill();
       }
 
       // update the hexes
@@ -295,7 +298,13 @@ var Map = exports.Map = function () {
             maxIndex = i;
           }
         }
-        if (ownerships[maxIndex] != 0) hex.owner = maxIndex;else hex.owner = 0;
+        if (ownerships[maxIndex] != 0) {
+          hex.owner = maxIndex;
+          hex.updateFill();
+        } else {
+          hex.owner = 0;
+          hex.updateFill();
+        }
       }
     }
 
@@ -325,7 +334,7 @@ var Map = exports.Map = function () {
         if (this.get(q, r).getNodeId(i) == -1) {
           this.get(q, r).setNodeId(lastId, i);
           var corner = this.get(q, r).corner(i);
-          var newNode = new _node.Node(this.context, corner.x, corner.y, this.nodeRadius);
+          var newNode = new _node.Node(corner.x, corner.y, this.nodeRadius);
           newNode.owner = 0;
           newNode.label = lastId + "";
           this.nodes.push(newNode);
@@ -344,33 +353,27 @@ var Map = exports.Map = function () {
 
     /*
       Draws the entire map.
-    */
-
-  }, {
-    key: "draw",
-    value: function draw() {
-      for (var hex in this.hexes) {
+      draw() {
+      for(var hex in this.hexes) {
         this.hexes[hex].draw();
       }
-
-      for (var i = 0; i < this.nodes.length; i++) {
+        for(var i = 0; i < this.nodes.length; i++) {
         this.nodes[i].draw();
       }
     }
+    */
 
     /*
       Checks all the nodes to see if they have been clicked.
     */
-
-  }, {
-    key: "nodeClicked",
-    value: function nodeClicked(screenX, screenY) {
-      for (var i = 0; i < this.nodes.length; i++) {
-        if (this.nodes[i].clicked(screenX, screenY)) {
+    /*
+    nodeClicked(screenX, screenY) {
+      for(var i = 0; i < this.nodes.length; i++) {
+        if(this.nodes[i].clicked(screenX, screenY)) {
           console.log("Player Turn: " + this.playerTurn);
           console.log("Node Id: " + i);
-          console.log("Player Color: " + _gameProperties.GameProperties.teamColors[this.playerTurn]);
-          if (this.canClaim(this.playerTurn, i)) {
+          console.log("Player Color: " + GameProperties.teamColors[this.playerTurn]);
+          if(this.canClaim(this.playerTurn, i)) {
             console.log("Claimed: " + i);
             this.claim(this.playerTurn, i);
             this.playerTurn = 1 + (this.playerTurn + 1) % (this.playerCount - 1);
@@ -378,7 +381,8 @@ var Map = exports.Map = function () {
           }
         }
       }
-    }
+      }
+    */
 
     /*
       Converts a hex to a pixel for the pointy hex layout.

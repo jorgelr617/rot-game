@@ -11,24 +11,40 @@ var _gameProperties = require("./gameProperties.js");
 
 var _point = require("./point.js");
 
+var _d = require("d3");
+
+var d3 = _interopRequireWildcard(_d);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Hex = exports.Hex = function () {
-  function Hex(context, x, y, size) {
+  function Hex(x, y, size) {
     _classCallCheck(this, Hex);
+
+    console.log("Hex " + x + ", " + y + ", " + size);
+    this.degOffset = 0; // 0 is flat top, 30 is pointy top
+    this.center = new _point.Point(x, y);
+    this.size = size;
+
+    var cornerPoints = this.corners();
+
+    var lineFunction = d3.svg.line().x(function (d) {
+      return d.x;
+    }).y(function (d) {
+      return d.y;
+    }).interpolate("linear");
+
+    this.path = d3.select('#board').append("path").attr("d", lineFunction(this.corners())).style("fill", this.fill());
 
     this.owner = 0;
     this.visited = false;
 
-    this.context = context;
     this.label = "";
 
     this.labelColor = "black";
     this.stroke = "black";
-
-    this.degOffset = 0; // 0 is flat top, 30 is pointy top
-    this.center = new _point.Point(x, y);
-    this.size = size;
 
     this.nodeIds = [];
     for (var i = 0; i < 6; i++) {
@@ -98,31 +114,15 @@ var Hex = exports.Hex = function () {
 
     /*
       Draws the hex to the current context
+      draw() {
+    
+      }
     */
 
   }, {
-    key: "draw",
-    value: function draw() {
-      var cornerPoints = this.corners();
-
-      // draw the hex
-      this.context.beginPath();
-      this.context.moveTo(cornerPoints[0].x, cornerPoints[0].y);
-      for (var i = 1; i < 6; i++) {
-        this.context.lineTo(cornerPoints[i].x, cornerPoints[i].y);
-      }
-      this.context.closePath();
-
-      this.context.strokeStyle = this.stroke;
-      this.context.fillStyle = this.fill();
-      this.context.stroke();
-      this.context.fill();
-
-      // add the label
-      this.context.textAlign = "center";
-      this.context.font = "15px Arial";
-      this.context.fillStyle = this.labelColor;
-      this.context.fillText(this.label, this.center.x, this.center.y);
+    key: "updateFill",
+    value: function updateFill() {
+      this.path.style("fill", this.fill());
     }
   }]);
 
